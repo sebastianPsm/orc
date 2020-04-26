@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <esp_err.h>
 #include <esp_log.h>
 #include <esp_bt.h>
 #include <esp_bt_main.h>
@@ -25,7 +26,6 @@
 #define CHAR_DECLARATION_SIZE       (sizeof(uint8_t))
 #define ADV_CONFIG_FLAG             (1 << 0)
 #define SCAN_RSP_CONFIG_FLAG        (1 << 1)
-#define TAG                         "ble"
 
 enum {
     IDX_SVC,

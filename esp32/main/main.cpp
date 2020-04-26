@@ -9,6 +9,8 @@
 #include "display.h"
 #include "imu.h"
 
+#define DISPLAY_ACTIVE (0)
+
 extern "C" void app_main(void) {
     esp_err_t ret;
 
@@ -20,11 +22,14 @@ extern "C" void app_main(void) {
     }
     ESP_ERROR_CHECK( ret );
     
-
+#if DISPLAY_ACTIVE
     display_init();
+#endif /* DISPLAY_ACTIVE */
 
-    ble_stuff_init();
+    //ble_stuff_init();
     
     imu_init();
+
+    imu_start_task();
 
 }

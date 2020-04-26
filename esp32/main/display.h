@@ -8,11 +8,17 @@
 #include "Calibri.h"
 #include "bt_logo.h"
 
+typedef struct {
+    unsigned spm; // strokes per minute
+    bool ble_active; // Bluetooth LE active
+} tDisplayStruct;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 void display_init();
+void show_boot_screen();
 void display_update();
 
 #ifdef __cplusplus

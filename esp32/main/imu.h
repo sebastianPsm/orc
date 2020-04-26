@@ -3,6 +3,7 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <driver/gpio.h>
 #include <esp_log.h>
 
 static constexpr int MOSI = 23;
@@ -16,7 +17,7 @@ extern "C" {
 #endif
 
 void imu_init();
-void imu_read();
+void imu_start_task();
 
 #ifdef __cplusplus
 }

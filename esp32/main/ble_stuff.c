@@ -1,5 +1,7 @@
 #include "ble_stuff.h"
 
+#define TAG "ble"
+
 #define CONFIG_SET_RAW_ADV_DATA
 #ifdef CONFIG_SET_RAW_ADV_DATA
 static uint8_t raw_adv_data[] = {
@@ -467,4 +469,6 @@ void ble_stuff_init() {
     if (local_mtu_ret){
         ESP_LOGE(TAG, "set local  MTU failed, error code = %x", local_mtu_ret);
     }
+
+    return ESP_OK;
 }
