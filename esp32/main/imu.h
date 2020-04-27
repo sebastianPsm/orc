@@ -5,6 +5,7 @@
 #include <freertos/task.h>
 #include <driver/gpio.h>
 #include <esp_log.h>
+#include <driver/spi_master.h>
 
 static constexpr int MOSI = 23;
 static constexpr int MISO = 19;

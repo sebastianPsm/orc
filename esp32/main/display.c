@@ -13,7 +13,7 @@ void display_init() {
         vTaskDelay(2000 / portTICK_RATE_MS);
         return;
     }
-    ESP_LOGE(TAG, "e-Paper initialized");
+    ESP_LOGI(TAG, "e-Paper initialized");
     clear_frame();
 
     frame_black = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
@@ -32,6 +32,7 @@ void show_boot_screen() {
     
     rotate = ROTATE_90;
     draw_string_in_grid_align_center(1, 0, 300,  EPD_WIDTH/2-10, "Open Rowing Computer", &Ubuntu16);
+    
     set_partial_window(frame_black, frame_red, 0,0,100,100);
     display_frame(frame_black, frame_red);
 }

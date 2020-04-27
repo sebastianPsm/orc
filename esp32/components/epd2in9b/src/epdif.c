@@ -90,15 +90,16 @@ int ifinit(void)
     esp_err_t ret;
 
     spi_bus_config_t buscfg = {
-        .miso_io_num = -1,
+        .miso_io_num = MISO_PIN,
         .mosi_io_num = MOSI_PIN,
         .sclk_io_num = CLK_PIN,
         .quadwp_io_num = -1,
         .quadhd_io_num = -1,
+        .max_transfer_sz = 4000,
     };
 
     //Initialize the SPI bus
-    ret = spi_bus_initialize(HSPI_HOST, &buscfg, 0);
+    ret = spi_bus_initialize(HSPI_HOST, &buscfg, 1);
     switch (ret) {
     case ESP_ERR_INVALID_ARG:
         ESP_LOGE("EPDIF", "INVALID ARG");

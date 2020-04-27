@@ -4,12 +4,12 @@
 
 #include "esp_log.h"
 #include "nvs_flash.h"
- 
+
+#include <SPIbus.hpp>
 #include "ble_stuff.h"
 #include "display.h"
 #include "imu.h"
-
-#define DISPLAY_ACTIVE (0)
+#include "storage.h"
 
 extern "C" void app_main(void) {
     esp_err_t ret;
@@ -21,15 +21,13 @@ extern "C" void app_main(void) {
         ret = nvs_flash_init();
     }
     ESP_ERROR_CHECK( ret );
-    
-#if DISPLAY_ACTIVE
-    display_init();
-#endif /* DISPLAY_ACTIVE */
+
+    imu_init(); // initialize and use VSPI_HOST
+    display_init(); // initialize HSPI_HOST SPI first
+    storage_init(); // uses HSPI_HOST SPI --> don't change the order
 
     //ble_stuff_init();
     
-    imu_init();
-
     imu_start_task();
 
 }
