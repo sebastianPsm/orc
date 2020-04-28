@@ -7,11 +7,7 @@
 #include "ubuntu16.h"
 #include "Calibri.h"
 #include "bt_logo.h"
-
-typedef struct {
-    unsigned spm; // strokes per minute
-    bool ble_active; // Bluetooth LE active
-} tDisplayStruct;
+#include "status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -19,7 +15,7 @@ extern "C" {
 
 void display_init();
 void show_boot_screen();
-void display_update();
+void display_update(const tStatus * status);
 
 #ifdef __cplusplus
 }

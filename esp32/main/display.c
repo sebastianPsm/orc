@@ -39,14 +39,14 @@ void show_boot_screen() {
 void show_error_screen() {
     
 }
-void display_update(tDisplayStruct * data) {
+void display_update(const tStatus * status) {
     char buffer[3];
 
     /*
      * Check incoming data
      */
-    if(data->spm > 99) {
-        ESP_LOGE(TAG, "incoming data structure spm value too high (%d)", data->spm);
+    if(status->spm > 99) {
+        ESP_LOGE(TAG, "incoming data structure spm value too high (%d)", status->spm);
     }
 
     /*
@@ -62,7 +62,7 @@ void display_update(tDisplayStruct * data) {
      */
     paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
     rotate = ROTATE_90;
-    itoa(data->spm, buffer, 10);
+    itoa(status->spm, buffer, 10);
     draw_string_in_grid_align_center(1, 0, 110, 0, buffer, &Calibri);
     draw_string_in_grid_align_center(1, 0, 215, 80, "s", &Ubuntu16);
     draw_vertical_line(120, 0, 10, 1);
@@ -77,9 +77,25 @@ void display_update(tDisplayStruct * data) {
     /*
      * draw BT logo
      */
-    if(data->ble_active) {
+    if(status->ble_active) {
         rotate = ROTATE_90;
         draw_bitmap_mono(EPD_HEIGHT-bt_logo.width-10, 10, &bt_logo);
+    }
+
+    /*
+     * draw log active
+     */
+    if(status->logging_active) {
+        rotate = ROTATE_90;
+        draw_string_in_grid_align_center(10, 9, EPD_HEIGHT, 20, "log", &Ubuntu16);
+    }
+
+    /*
+     * draw name
+     */
+    if(status->name_owner) {
+        rotate = ROTATE_90;
+        draw_string(status->name_owner, 0, 0, &Ubuntu16);
     }
 
     /*
