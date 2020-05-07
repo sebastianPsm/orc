@@ -15,11 +15,16 @@
 
 tStatus status = {
     .name_owner = NULL,
-    .spm = 0,
     .has_weight = false,
     .weight_kg = 0,
+
+    .spm = 0,
+    
     .ble_active = false,
-    .logging_active = false,    
+    .logging_active = false,
+    .sd_is_mounted = false,
+    .imu_is_initialized = false,
+    .sleep_after_s = 300,
 };
 
 extern "C" void app_main(void) {
@@ -36,16 +41,16 @@ extern "C" void app_main(void) {
     /*
      * Initialize ORC features
      */
-    imu_init(); // initialize and use VSPI_HOST
-    display_init(); // initialize HSPI_HOST SPI first
+    imu_init(&status); // initialize and use VSPI_HOST
+    display_init(); // initialize and use HSPI_HOST SPI first
     storage_init(); // uses HSPI_HOST SPI --> don't change the order
 
     /*
      * Read storage directly after boot
      */    
-    if(ESP_OK == storage_mount()) {
+    if(ESP_OK == storage_mount(&status)) {
         storage_read_config(&status);
-        storage_unmount();
+        storage_unmount(&status);
     }
     
     display_update(&status);
@@ -53,6 +58,5 @@ extern "C" void app_main(void) {
     //ble_stuff_init();
     
     imu_start_task();
-
 
 }

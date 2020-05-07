@@ -10,8 +10,8 @@ extern "C" {
 #endif
 
 esp_err_t storage_init();
-esp_err_t storage_mount();
-esp_err_t storage_unmount();
+esp_err_t storage_mount(tStatus * status_out);
+esp_err_t storage_unmount(tStatus * status_out);
 
 esp_err_t storage_read_config(tStatus * status_out);
 

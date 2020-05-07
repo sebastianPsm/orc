@@ -40,7 +40,7 @@ esp_err_t storage_init() {
     
     return ESP_OK;
 }
-esp_err_t storage_mount() {
+esp_err_t storage_mount(tStatus * status_out) {
     esp_err_t ret = esp_vfs_fat_sdspi_mount(MOUNT_POINT, &host, &slot_config, &mount_config, &card);
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
@@ -54,11 +54,11 @@ esp_err_t storage_mount() {
     }
 
     sdmmc_card_print_info(stdout, card);
-
+    status_out->sd_is_mounted = true;
     ESP_LOGI(TAG, "Mount successful");
     return ESP_OK;
 }
-esp_err_t storage_unmount() {
+esp_err_t storage_unmount(tStatus * status_out) {
     esp_err_t ret = esp_vfs_fat_sdcard_unmount(MOUNT_POINT, card);
     if(ret != ESP_OK) {
         if (ret == ESP_ERR_INVALID_ARG) {
@@ -69,18 +69,19 @@ esp_err_t storage_unmount() {
                 "mount hasn’t been called");
         }
     }
+    status_out->sd_is_mounted = false;
     return ret;
 }
-esp_err_t storage_read_config(tStatus * data_out) {
-    if(data_out == NULL) return ESP_ERR_INVALID_ARG;
+esp_err_t storage_read_config(tStatus * status_out) {
+    if(status_out == NULL) return ESP_ERR_INVALID_ARG;
 
     /*
      * Reset out argument
      */
-    data_out->name_owner = NULL;
-    data_out->has_weight = false;
-    data_out->weight_kg = 0;
-    data_out->logging_active = false;
+    status_out->name_owner = NULL;
+    status_out->has_weight = false;
+    status_out->weight_kg = 0;
+    status_out->logging_active = false;
 
     FILE * f = fopen(MOUNT_POINT"/config.txt", "rb");
     if(f != NULL) {
@@ -97,17 +98,17 @@ esp_err_t storage_read_config(tStatus * data_out) {
 
         cJSON *json = cJSON_Parse(data);
         if(cJSON_HasObjectItem(json, "name_owner")){
-             data_out->name_owner = strdup(cJSON_GetStringValue(cJSON_GetObjectItem(json, "name_owner")));
+             status_out->name_owner = strdup(cJSON_GetStringValue(cJSON_GetObjectItem(json, "name_owner")));
         }
         if(cJSON_HasObjectItem(json, "weight_kg")){
-            data_out->has_weight = true;
-            data_out->weight_kg = cJSON_GetObjectItem(json, "weight_kg")->valueint;
+            status_out->has_weight = true;
+            status_out->weight_kg = cJSON_GetObjectItem(json, "weight_kg")->valueint;
         }
         if(cJSON_HasObjectItem(json, "ble_active")){
-            data_out->ble_active = cJSON_GetObjectItem(json, "ble_active")->valueint == 0 ? 0 : 1;
+            status_out->ble_active = cJSON_GetObjectItem(json, "ble_active")->valueint == 0 ? 0 : 1;
         }
         if(cJSON_HasObjectItem(json, "logging_active")){
-            data_out->logging_active = cJSON_GetObjectItem(json, "logging_active")->valueint == 0 ? 0 : 1;
+            status_out->logging_active = cJSON_GetObjectItem(json, "logging_active")->valueint == 0 ? 0 : 1;
         }
 
         cJSON_Delete(json);
