@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 void display_init();
-void show_boot_screen();
-void display_update(const tStatus * status);
+void display_start_update_task(const tStatus * status);
+void display_update();
 
 #ifdef __cplusplus
 }

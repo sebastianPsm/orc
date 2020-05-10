@@ -13,7 +13,6 @@ mpud::types::accel_fs_t accelScale = mpud::ACCEL_FS_4G;
 mpud::types::gyro_fs_t gyroScale = mpud::GYRO_FS_500DPS;
 uint16_t sampleRate = 4; // Hz (4 .. 1000 Hz)
 static constexpr gpio_num_t kInterruptPin = GPIO_NUM_13;  // GPIO_NUM
-uint32_t sleep_after_s; // Start deep sleep after x number of seconds
 uint64_t last_motion;
 
 static constexpr mpud::int_config_t kInterruptConfig{
@@ -50,14 +49,13 @@ void imu_init(tStatus * status) {
     /*
      * Initialize sleep mode
      */
-    sleep_after_s = status->sleep_after_s;
     esp_sleep_enable_ext0_wakeup(kInterruptPin, 1);
 
     /*
      * Motion detection
      */
     mpud::mot_config_t config = {
-        .threshold = 20,
+        .threshold = 17,
     };
     MPU.setMotionDetectConfig(config);
     MPU.setMotionFeatureEnabled(true);
@@ -73,12 +71,14 @@ static IRAM_ATTR void imuISR(TaskHandle_t taskHandle) {
     if (HPTaskWoken == pdTRUE) portYIELD_FROM_ISR();
 }
 
-static void imu_read_task(void *) {
-    ESP_LOGI(TAG, "Start task... ");
+static void imu_read_task(void * data) {
+    tStatus * status = (tStatus *) data;
 
     constexpr uint16_t kFIFOPacketSize = 12;
     mpud::float_axes_t accelG;   // accel axes in (g) gravity format
     mpud::float_axes_t gyroDPS;  // gyro axes in (DPS) º/s format
+
+    ESP_LOGI(TAG, "Start task... ");
 
     /*
      * use LED (GPIO_NUM_2) for motion detection
@@ -127,7 +127,6 @@ static void imu_read_task(void *) {
         int64_t t = esp_timer_get_time();
 
         uint16_t fifocount = MPU.getFIFOCount();
-        ESP_LOGI(TAG, "fifocount: %d", fifocount);
         if (esp_err_t err = MPU.lastError()) {
             ESP_LOGE(TAG, "Error reading fifo count, %#X", err);
             MPU.resetFIFO();
@@ -165,21 +164,19 @@ static void imu_read_task(void *) {
          * - if motion, then reset 'last_motion' with current time
          * - if 'sleep_after_s' exceeds, then go sleep
          */
-        mpud::types::int_stat_t status = MPU.getInterruptStatus();
-        if(status & mpud::INT_STAT_MOTION_DETECT)
+        mpud::types::int_stat_t mpu_status = MPU.getInterruptStatus();
+        if(mpu_status & mpud::INT_STAT_MOTION_DETECT)
             last_motion = t;
 
-        if((t - last_motion) > (uint64_t) (sleep_after_s * 1e6)) {
-            ESP_LOGE(TAG, "Entering deep sleep mode");
-
+        if((t - last_motion) > (uint64_t) (status->sleep_after_s * 1e6)) {
             /*
              * Disable further data interrupts from IMU (will wakeup the ESP),
              * but keep motion detect interrupts
              */
             ESP_ERROR_CHECK(MPU.setInterruptEnabled(mpud::INT_EN_MOTION_DETECT));
             vTaskDelay(2 / portTICK_RATE_MS);
-            
-            esp_deep_sleep_start();
+
+            status->sleep_cb();
         }
 
         // Convert
@@ -188,14 +185,14 @@ static void imu_read_task(void *) {
 
         float d_t = (t-t_old)/1.0e3;
 
-        sprintf(buf, "%+6.2f, %+6.2f, %+6.2f, %+6.2f, %+7.2f, %+7.2f, %+7.2f", d_t, accelG.x, accelG.y, accelG.z, gyroDPS[0], gyroDPS[1], gyroDPS[2]);
-        ESP_LOGE(TAG, "%s", buf);
+        sprintf(buf, "%+6.2f, %+6.2f, %+6.2f, %+6.2f, %+7.2f, %+7.2f, %+7.2f, %5.2f", d_t, accelG.x, accelG.y, accelG.z, gyroDPS[0], gyroDPS[1], gyroDPS[2], (t-last_motion)/1e3);
+        ESP_LOGI(TAG, "%s", buf);
 
         t_old = t;
     }
-    vTaskDelete(NULL);    
+    vTaskDelete(NULL);
 }
 
-void imu_start_task() {
-    xTaskCreate(imu_read_task, "imu_read_task", 4 * 1024, NULL, 6, NULL);
+void imu_start_task(tStatus * status) {
+    xTaskCreate(imu_read_task, "imu_read_task", 4 * 1024, (void *) status, 6, NULL);
 }

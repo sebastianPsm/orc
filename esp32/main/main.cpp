@@ -13,6 +13,8 @@
 
 #define TAG "main"
 
+void enter_sleep_mode();
+
 tStatus status = {
     .name_owner = NULL,
     .has_weight = false,
@@ -22,10 +24,18 @@ tStatus status = {
     
     .ble_active = false,
     .logging_active = false,
+    .sleep_active = false,
+
     .sd_is_mounted = false,
     .imu_is_initialized = false,
-    .sleep_after_s = 300,
+    .sleep_after_s = 10,
+    .sleep_cb = enter_sleep_mode,
 };
+
+void enter_sleep_mode() {
+    ESP_LOGE(TAG, "Entering deep sleep mode");            
+    esp_deep_sleep_start();
+}
 
 extern "C" void app_main(void) {
     esp_err_t ret;
@@ -44,6 +54,9 @@ extern "C" void app_main(void) {
     imu_init(&status); // initialize and use VSPI_HOST
     display_init(); // initialize and use HSPI_HOST SPI first
     storage_init(); // uses HSPI_HOST SPI --> don't change the order
+    display_start_update_task(&status);
+
+    display_update();
 
     /*
      * Read storage directly after boot
@@ -53,10 +66,9 @@ extern "C" void app_main(void) {
         storage_unmount(&status);
     }
     
-    display_update(&status);
 
     //ble_stuff_init();
     
-    imu_start_task();
+    imu_start_task(&status);
 
 }

@@ -25,8 +25,10 @@ typedef enum {
 extern "C" {
 #endif
 
+
+
 void imu_init(tStatus * status);
-void imu_start_task();
+void imu_start_task(tStatus * status);
 
 #ifdef __cplusplus
 }

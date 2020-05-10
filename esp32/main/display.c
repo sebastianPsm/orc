@@ -7,6 +7,8 @@ unsigned char* frame_red;
 
 #define TAG "display"
 
+TaskHandle_t update_task;
+
 void display_init() {
     if (epd2in9b_init() != 0) {
         ESP_LOGE(TAG, "e-Paper init failed");
@@ -19,7 +21,7 @@ void display_init() {
     frame_black = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
     frame_red = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
 
-    show_boot_screen();
+    //show_boot_screen();
 }
 void show_boot_screen() {
     /*
@@ -39,68 +41,88 @@ void show_boot_screen() {
 void show_error_screen() {
     
 }
-void display_update(const tStatus * status) {
+
+void _display_update(void * data) {
     char buffer[3];
+    tStatus * status = (tStatus *) data;
 
-    /*
-     * Check incoming data
-     */
-    if(status->spm > 99) {
-        ESP_LOGE(TAG, "incoming data structure spm value too high (%d)", status->spm);
-    }
+    ESP_LOGI(TAG, "Start task... ");
 
-    /*
-     * Clear black and clear red frame
-     */
-    paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
-    clear(0); // 0: UNCOLORED, 1: COLORED
-    paint(frame_red, EPD_WIDTH, EPD_HEIGHT);
-    clear(0); // 0: UNCOLORED, 1: COLORED
+    while(true) {
+        vTaskSuspend( NULL );
+        ESP_LOGI(TAG, "Update...");
 
-    /*
-     * draw SPM
-     */
-    paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
-    rotate = ROTATE_90;
-    itoa(status->spm, buffer, 10);
-    draw_string_in_grid_align_center(1, 0, 110, 0, buffer, &Calibri);
-    draw_string_in_grid_align_center(1, 0, 215, 80, "s", &Ubuntu16);
-    draw_vertical_line(120, 0, 10, 1);
-    draw_vertical_line(121, 0, 10, 1);
-    draw_vertical_line(120, EPD_WIDTH-10, EPD_WIDTH, 1);
-    draw_vertical_line(121, EPD_WIDTH-10, EPD_WIDTH, 1);
-    draw_string_in_grid_align_center(1, 0, 110, 100, "minute", &Ubuntu16);
-    rotate = ROTATE_0;
-    draw_vertical_line(27, 10, 95, 1);
-    draw_vertical_line(28, 10, 95, 1);
+        /*
+         * Check incoming data
+         */
+        if(status->spm > 99) {
+            ESP_LOGE(TAG, "incoming data structure spm value too high (%d)", status->spm);
+        }
 
-    /*
-     * draw BT logo
-     */
-    if(status->ble_active) {
+        /*
+         * Clear black and clear red frame
+         */
+        paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
+        clear(0); // 0: UNCOLORED, 1: COLORED
+        paint(frame_red, EPD_WIDTH, EPD_HEIGHT);
+        clear(0); // 0: UNCOLORED, 1: COLORED
+
+        /*
+         * draw SPM
+         */
+        paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
         rotate = ROTATE_90;
-        draw_bitmap_mono(EPD_HEIGHT-bt_logo.width-10, 10, &bt_logo);
-    }
+        itoa(status->spm, buffer, 10);
+        draw_string_in_grid_align_center(1, 0, 110, 0, buffer, &Calibri);
+        draw_string_in_grid_align_center(1, 0, 215, 80, "s", &Ubuntu16);
+        draw_vertical_line(120, 0, 10, 1);
+        draw_vertical_line(121, 0, 10, 1);
+        draw_vertical_line(120, EPD_WIDTH-10, EPD_WIDTH, 1);
+        draw_vertical_line(121, EPD_WIDTH-10, EPD_WIDTH, 1);
+        draw_string_in_grid_align_center(1, 0, 110, 100, "minute", &Ubuntu16);
+        rotate = ROTATE_0;
+        draw_vertical_line(27, 10, 95, 1);
+        draw_vertical_line(28, 10, 95, 1);
 
-    /*
-     * draw log active
-     */
-    if(status->logging_active) {
-        rotate = ROTATE_90;
-        draw_string_in_grid_align_center(10, 9, EPD_HEIGHT, 20, "log", &Ubuntu16);
-    }
+        /*
+         * draw BT logo
+         */
+        if(status->ble_active) {
+            rotate = ROTATE_90;
+            draw_bitmap_mono(EPD_HEIGHT-bt_logo.width-10, 10, &bt_logo);
+        }
 
-    /*
-     * draw name
-     */
-    if(status->name_owner) {
-        rotate = ROTATE_90;
-        draw_string(status->name_owner, 0, 0, &Ubuntu16);
-    }
+        /*
+         * draw log active
+         */
+        if(status->logging_active) {
+            rotate = ROTATE_90;
+            draw_string_in_grid_align_center(10, 9, EPD_HEIGHT, 20, "log", &Ubuntu16);
+        }
 
-    /*
-     * IO
-     */
-    set_partial_window(frame_black, frame_red, 0,0,100,100);
-    display_frame(frame_black, frame_red);
+        /*
+         * draw name
+         */
+        if(status->name_owner) {
+            rotate = ROTATE_90;
+            draw_string(status->name_owner, 0, 0, &Ubuntu16);
+        }
+
+        /*
+         * IO
+         */
+        set_partial_window(frame_black, frame_red, 0,0,100,100);
+        display_frame(frame_black, frame_red);
+        ESP_LOGI(TAG, "done");
+    }
+    vTaskDelete(NULL);
+}
+
+void display_start_update_task(const tStatus * status) {
+    xTaskCreate(_display_update, "display_update", 4 * 1024, (void *) status, 6, &update_task);
+    while(eTaskGetState(update_task) != eSuspended);
+}
+
+void display_update() {
+    vTaskResume(update_task);
 }
