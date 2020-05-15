@@ -20,20 +20,36 @@ tStatus status = {
     .has_weight = false,
     .weight_kg = 0,
 
-    .spm = 0,
-    
+    .spm = 55,
+
     .ble_active = false,
-    .logging_active = false,
     .sleep_active = false,
 
+    .logging_active = false,
     .sd_is_mounted = false,
+    .log_file_suffix = 0,
+    .new_log_file = true,
+
     .imu_is_initialized = false,
-    .sleep_after_s = 10,
+   
+    .sleep_after_s = 15,
     .sleep_cb = enter_sleep_mode,
+
+    .imu_sampler_rate_hz = 50,
+
+    .counter_run = 0,
 };
 
 void enter_sleep_mode() {
-    ESP_LOGE(TAG, "Entering deep sleep mode");            
+    ESP_LOGE(TAG, "Entering deep sleep mode");
+    status.sleep_active = true;
+    status.counter_run++;
+
+    if(ESP_OK == storage_mount(&status)) {
+        storage_write_config(&status);
+        storage_unmount(&status);
+    }
+
     esp_deep_sleep_start();
 }
 
@@ -56,8 +72,6 @@ extern "C" void app_main(void) {
     storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
 
-    display_update();
-
     /*
      * Read storage directly after boot
      */    
@@ -65,10 +79,12 @@ extern "C" void app_main(void) {
         storage_read_config(&status);
         storage_unmount(&status);
     }
-    
 
+    display_update();
+    
     //ble_stuff_init();
-    
+    storage_mount(&status);
     imu_start_task(&status);
-
+    
+    
 }

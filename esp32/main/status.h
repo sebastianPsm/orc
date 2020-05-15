@@ -22,13 +22,24 @@ typedef struct {
      * system data
      */
     bool ble_active; // Bluetooth LE 
-    bool logging_active; // Logging data active
     bool sleep_active; // Sleep mode is active
 
+    bool logging_active; // Logging data active
     bool sd_is_mounted; // SD card status
+    unsigned log_file_suffix; // Log file suffix
+    bool new_log_file; // log file already created
+
     bool imu_is_initialized; // IMU sensor status
     uint32_t sleep_after_s; // Start deep sleep after x number of seconds
     void (*sleep_cb)(); // Sleep callback is called if sleep_after_s exceeded
+
+    uint16_t imu_sampler_rate_hz; // IMU sample rate in Hz (4 .. 1000 Hz)
+    
+
+    /*
+     * Statistic
+     */
+    unsigned counter_run;
 } tStatus;
 
 

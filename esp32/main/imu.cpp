@@ -5,13 +5,14 @@
 #include "mpu/math.hpp"   // math helper for dealing with MPU data
 #include "mpu/types.hpp"  // MPU data types and definitions
 
+#include "storage.h"
+
 static const char* TAG = "imu";
 
 MPU_t MPU;  // create a default MPU object
 
 mpud::types::accel_fs_t accelScale = mpud::ACCEL_FS_4G;
 mpud::types::gyro_fs_t gyroScale = mpud::GYRO_FS_500DPS;
-uint16_t sampleRate = 4; // Hz (4 .. 1000 Hz)
 static constexpr gpio_num_t kInterruptPin = GPIO_NUM_13;  // GPIO_NUM
 uint64_t last_motion;
 
@@ -60,7 +61,7 @@ void imu_init(tStatus * status) {
     MPU.setMotionDetectConfig(config);
     MPU.setMotionFeatureEnabled(true);
 
-    MPU.setSampleRate(sampleRate);
+    MPU.setSampleRate(status->imu_sampler_rate_hz);
     MPU.setAccelFullScale(accelScale);
     MPU.setGyroFullScale(gyroScale);
 }
@@ -185,8 +186,7 @@ static void imu_read_task(void * data) {
 
         float d_t = (t-t_old)/1.0e3;
 
-        sprintf(buf, "%+6.2f, %+6.2f, %+6.2f, %+6.2f, %+7.2f, %+7.2f, %+7.2f, %5.2f", d_t, accelG.x, accelG.y, accelG.z, gyroDPS[0], gyroDPS[1], gyroDPS[2], (t-last_motion)/1e3);
-        ESP_LOGI(TAG, "%s", buf);
+        storage_write_log(status, accelG.x, accelG.y, accelG.z, gyroDPS[0], gyroDPS[1], gyroDPS[2], 0.0, (t-last_motion)/1e6);
 
         t_old = t;
     }
