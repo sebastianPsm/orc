@@ -40,6 +40,7 @@ typedef struct {
      * Statistic
      */
     unsigned counter_run;
+    long counter_log_bytes;
 } tStatus;
 
 

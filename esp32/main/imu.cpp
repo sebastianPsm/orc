@@ -56,7 +56,7 @@ void imu_init(tStatus * status) {
      * Motion detection
      */
     mpud::mot_config_t config = {
-        .threshold = 17,
+        .threshold = 6,
     };
     MPU.setMotionDetectConfig(config);
     MPU.setMotionFeatureEnabled(true);
@@ -114,7 +114,6 @@ static void imu_read_task(void * data) {
 
     int64_t t_old = esp_timer_get_time();
     last_motion = t_old;
-    char buf[1024];
 
     ESP_LOGI(TAG, "Task started");
     while (true) {
@@ -168,6 +167,12 @@ static void imu_read_task(void * data) {
         mpud::types::int_stat_t mpu_status = MPU.getInterruptStatus();
         if(mpu_status & mpud::INT_STAT_MOTION_DETECT)
             last_motion = t;
+        
+        if((t - last_motion) > 5*1e6){
+            gpio_set_level(GPIO_NUM_2, 1);
+        } else {
+            gpio_set_level(GPIO_NUM_2, 0);
+        }
 
         if((t - last_motion) > (uint64_t) (status->sleep_after_s * 1e6)) {
             /*
@@ -183,8 +188,6 @@ static void imu_read_task(void * data) {
         // Convert
         accelG = mpud::accelGravity(rawAccel, accelScale);
         gyroDPS = mpud::gyroDegPerSec(rawGyro, gyroScale);
-
-        float d_t = (t-t_old)/1.0e3;
 
         storage_write_log(status, accelG.x, accelG.y, accelG.z, gyroDPS[0], gyroDPS[1], gyroDPS[2], 0.0, (t-last_motion)/1e6);
 

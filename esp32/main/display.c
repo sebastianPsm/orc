@@ -109,7 +109,7 @@ void _display_update(void * data) {
         if(status->logging_active) {
             ESP_LOGI(TAG, "draw logging active");
             rotate = ROTATE_90;
-            draw_string_in_grid_align_right(12, 11, 0, EPD_HEIGHT, 30, "log", &Ubuntu16);
+            draw_string_in_grid_align_right(12, 11, 0, EPD_HEIGHT, 46, "log", &Ubuntu16);
         }
 
         /*

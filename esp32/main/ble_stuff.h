@@ -16,7 +16,6 @@
 #define PROFILE_NUM                 1
 #define PROFILE_APP_IDX             0
 #define ESP_APP_ID                  0x55
-#define SAMPLE_DEVICE_NAME          "ESP_GATTS_DEMO"
 #define SVC_INST_ID                 0
 /* The max length of characteristic value. When the GATT client performs a write or prepare write operation,
 *  the data length must be less than GATTS_DEMO_CHAR_VAL_LEN_MAX. 
@@ -29,15 +28,9 @@
 
 enum {
     IDX_SVC,
+    
     IDX_CHAR_A,
     IDX_CHAR_VAL_A,
-    IDX_CHAR_CFG_A,
-
-    IDX_CHAR_B,
-    IDX_CHAR_VAL_B,
-
-    IDX_CHAR_C,
-    IDX_CHAR_VAL_C,
 
     HRS_IDX_NB,
 };
@@ -66,7 +59,7 @@ struct gatts_profile_inst {
 extern "C" {
 #endif
 
-void ble_stuff_init();
+esp_err_t ble_stuff_init();
 
 #ifdef __cplusplus
 }

@@ -178,6 +178,7 @@ esp_err_t storage_write_config(tStatus * status) {
 
 esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z, float battery, float last_motion) {
     char buf[100];
+    long old_pos;
 
     if(status == NULL) return ESP_ERR_INVALID_ARG;
     if(!status->logging_active) return ESP_OK;
@@ -192,8 +193,10 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
             ESP_LOGE(TAG, "Was not possible to write '%s' (sd_is_mounted: %d)", buf, status->sd_is_mounted);
             return ESP_FAIL;
         }
+        old_pos = ftell(f_log);
         fprintf(f_log, "time_delta[ms],accel_x[G],accel_y[G],accel_z[G],gyro_x[deg/s],gyro_y[deg/s],gyro_z[deg/s],battery[V],last_motion[s]\r\n");
         last_log_entry = esp_timer_get_time();
+        status->counter_log_bytes += ftell(f_log) - old_pos;
 
         status->log_file_suffix++;
     }
@@ -202,7 +205,8 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
      * Write log entry
      */
     uint64_t t = esp_timer_get_time();
-    int ret_fprintf = fprintf(f_log, "%4.2f, %+6.2f, %+6.2f, %+6.2f, %+7.2f, %+7.2f, %+7.2f, %+4.2f, %5.2f\r\n", (t - last_log_entry)/1e3, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, battery, last_motion);
+    old_pos = ftell(f_log);
+    int ret_fprintf = fprintf(f_log, "%.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %.2f\r\n", (t - last_log_entry)/1e3, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, battery, last_motion);
     if(ret_fprintf < 0) {
         ESP_LOGE(TAG, "Error writing log: %d (fprint)", ferror(f_log));
         return ESP_FAIL;
@@ -212,8 +216,8 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
         ESP_LOGE(TAG, "Error writing log: %d (fflush)", ferror(f_log));
         return ESP_FAIL;
     }
-
     last_log_entry = t;
+    status->counter_log_bytes += ftell(f_log) - old_pos;
     //ESP_LOGI(TAG, "New log entry written (%d chars)", ret_fprintf);
     
     return ESP_OK;

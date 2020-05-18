@@ -38,10 +38,12 @@ tStatus status = {
     .imu_sampler_rate_hz = 50,
 
     .counter_run = 0,
+    .counter_log_bytes = 0
 };
 
 void enter_sleep_mode() {
     ESP_LOGE(TAG, "Entering deep sleep mode");
+
     status.sleep_active = true;
     status.counter_run++;
 
@@ -82,9 +84,11 @@ extern "C" void app_main(void) {
 
     display_update();
     
-    //ble_stuff_init();
     storage_mount(&status);
     imu_start_task(&status);
-    
+
+    if(status.ble_active) {
+        ble_stuff_init();
+    }    
     
 }
