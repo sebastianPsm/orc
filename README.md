@@ -19,6 +19,11 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 - Use Bluetooth to publish battery status and SRM (strokes per minute) value
 - Use [Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) to show orc values like battery status and SRM
 
+## Parts
+
+- The needed electronic parts can be found in the parts_list directory. Currently theres only one parts list for Reichelt Elektronik available.
+- Moreinformation about the first version of the housing will be uploaded soon
+
 ## Wiring
 
 <details>
