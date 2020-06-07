@@ -31,7 +31,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 
 
 | ESP32-WROOM | ePaper |
-| ----------- | ------ |
+| --- | --- |
 | D35         | BUSY   |
 | D32         | RST    |
 | D33         | DC     |
@@ -41,7 +41,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | GND         | GND    |
 
 | ESP32-WROOM | Accel  |
-| ----------- | ------ |
+| --- | --- |
 | D13         | INT    |
 | D5          | CS     |
 | D18         | SCLK   |
@@ -49,7 +49,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | D19         | MISO   |
 
 | ESP32-WROOM | SD-Card          |
-| ----------- | ---------------- |
+| --- | --- |
 |             | Pin 1 (DAT 2)    |
 | D14         | Pin 2 (DAT 3)    |
 | D27         | Pin 3 (CMD I/O)  |
