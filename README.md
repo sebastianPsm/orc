@@ -1,11 +1,11 @@
-Orc was started during the corona pendemic and the time where it wasn't possible to me to go rowing. The basic concept: Use available electronic parts (e.g. from [Rechelt Elektronik](https://www.reichelt.de/)) and a 3D-printer ([service](https://www.treatstock.com)) to create a good and solid rowing computer for the day-to-day-training.
+Orc was started during the corona pendemic and the time where it wasn't possible for me to go rowing. The basic concept: Use available electronic parts (e.g. from [Rechelt Elektronik](https://www.reichelt.de/)) and a 3D-printer ([service](https://www.treatstock.com)) to create a good and solid rowing computer for the day-to-day-training.
 
-The system consists of a microcontroller, SD-card, acceleration sensor, e-paper display, a li-ion battery and charing electronic.
+The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display, a li-ion battery and charing electronic.
 
 ## State of the project
 
 - Electronic parts working together
-- Acceleration sensor software works
+- 9-DOF-sensor software works
 - e-paper display software works
 - Logging to SD-card works (result is stored as csv file)
 - Bluetooth works
