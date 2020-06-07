@@ -8,4 +8,4 @@ redcarpet:
     - strikethrough
     - superscript
     - with_to_data
-theme: jekyll-theme-midnight
+theme: jekyll-theme-minimal
