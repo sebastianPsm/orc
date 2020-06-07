@@ -21,6 +21,10 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 
 ## Wiring
 
+<details>
+  <summary>Wiring list of the electronic components</summary>
+
+
 | ESP32-WROOM | ePaper |
 | ----------- | ------ |
 | D35         | BUSY   |
@@ -59,3 +63,5 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | ePaper      | Charger  |
 | ----------- | -------- |
 | VCC         | 5V       |
+
+</details>
