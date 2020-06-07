@@ -1,4 +1,3 @@
-# orc - The Open Rowing Computer
 Orc was started during the corona pendemic and the time where it wasn't possible to me to go rowing. The basic concept: Use available electronic parts (e.g. from [Rechelt Elektronik](https://www.reichelt.de/)) and a 3D-printer ([service](https://www.treatstock.com)) to create a good and solid rowing computer for the day-to-day-training.
 
 The system consists of a microcontroller, SD-card, acceleration sensor, e-paper display, a li-ion battery and charing electronic.
