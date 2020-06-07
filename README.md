@@ -1,22 +1,23 @@
 # orc - The Open Rowing Computer
-Orc was started during the corona pendemic and the time where it wasn't possible to me to go rowing. The basic concept simpy: Use available electronic parts and a 3D-printer to create a good and solid rowing computer for the day-to-day-training.
+Orc was started during the corona pendemic and the time where it wasn't possible to me to go rowing. The basic concept: Use available electronic parts (e.g. from [Rechelt Elektronik](https://www.reichelt.de/)) and a 3D-printer ([service](https://www.treatstock.com)) to create a good and solid rowing computer for the day-to-day-training.
 
-The system consists of a microcontroller, SD-card, acceleration sensor, e-paper display, an li-ion battery and a charing electronic.
+The system consists of a microcontroller, SD-card, acceleration sensor, e-paper display, a li-ion battery and charing electronic.
 
 ## State of the project
 
 - Electronic parts working together
 - Acceleration sensor software works
 - e-paper display software works
-- Logging to SD-card works
+- Logging to SD-card works (result is stored as csv file)
+- Bluetooth works
 - charging works
 
 ## Next steps
 
 - Design, build and test a housing
 - Add a voltage divider to show the battery state-of-charge
-- 
-
+- Use Bluetooth to publish battery status and SRM (strokes per minute) value
+- Use [Web Bluetooth](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API) to show orc values like battery status and SRM
 
 ## Wiring
 
