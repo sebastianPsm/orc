@@ -1,3 +1,9 @@
+<style>
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+</style>
+
 # orc - The Open Rowing Computer
 Orc was started during the corona pendemic and the time where it wasn't possible to me to go rowing. The basic concept: Use available electronic parts (e.g. from [Rechelt Elektronik](https://www.reichelt.de/)) and a 3D-printer ([service](https://www.treatstock.com)) to create a good and solid rowing computer for the day-to-day-training.
 
@@ -39,6 +45,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | D26         | CLK    |
 | D27         | DIN    |
 | GND         | GND    |
+{: .tablelines}
 
 | ESP32-WROOM | Accel  |
 | --- | --- |
@@ -47,6 +54,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | D18         | SCLK   |
 | D23         | MOSI   |
 | D19         | MISO   |
+{: .tablelines}
 
 | ESP32-WROOM | SD-Card          |
 | --- | --- |
@@ -59,14 +67,17 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 | GND         | Pin 7 (GND)      |
 | D12         | Pin 8 (DAT 0)    |
 |             | Pin 9 (DAT 1)    |
+{: .tablelines}
 
 | ESP32-WROOM | Charger  |
 | ----------- | -------- |
 | VIN         | 5V       |
 | GND         | GND      |
+{: .tablelines}
 
 | ePaper      | Charger  |
 | ----------- | -------- |
 | VCC         | 5V       |
+{: .tablelines}
 
 </details>
