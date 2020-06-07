@@ -22,7 +22,7 @@ The system consists of a microcontroller, SD-card, acceleration sensor, e-paper 
 ## Parts
 
 - The needed electronic parts can be found in the parts_list directory. Currently theres only one parts list for Reichelt Elektronik available.
-- Moreinformation about the first version of the housing will be uploaded soon
+- More information about the first version of the housing will be uploaded soon
 
 ## Wiring
 
