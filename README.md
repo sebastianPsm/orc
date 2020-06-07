@@ -23,20 +23,9 @@ The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display
 - The needed electronic parts can be found in the parts_list directory. Currently theres only one parts list for Reichelt Elektronik available.
 - More information about the first version of the housing will be uploaded soon
 
-| ESP32-WROOM | ePaper |
-| --- | --- |
-| D35         | BUSY   |
-| D32         | RST    |
-| D33         | DC     |
-| D25         | CS     |
-| D26         | CLK    |
-| D27         | DIN    |
-| GND         | GND    |
-
 ## Wiring
 
-<details>
-  <summary>Wiring list of the electronic components</summary>
+Wiring lists of the electronic components
 
 
 | ESP32-WROOM | ePaper |
@@ -77,5 +66,3 @@ The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display
 | ePaper      | Charger  |
 | ----------- | -------- |
 | VCC         | 5V       |
-
-</details>
