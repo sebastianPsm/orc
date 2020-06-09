@@ -41,12 +41,6 @@ void imu_init(tStatus * status) {
 
     ESP_ERROR_CHECK(MPU.initialize());  // initialize the chip and set initial configurations
 
-    // Calibrate
-    //mpud::raw_axes_t accelBias, gyroBias;
-    //ESP_ERROR_CHECK(MPU.computeOffsets(&accelBias, &gyroBias));
-    //ESP_ERROR_CHECK(MPU.setAccelOffset(accelBias));
-    //ESP_ERROR_CHECK(MPU.setGyroOffset(gyroBias));
-
     /*
      * Initialize sleep mode
      */
