@@ -16,7 +16,8 @@
 #define PROFILE_NUM                 1
 #define PROFILE_APP_IDX             0
 #define ESP_APP_ID                  0x55
-#define SVC_INST_ID                 0
+#define PRI_SVC_INST_ID             0
+#define SEC_SVC_INST_ID             0
 /* The max length of characteristic value. When the GATT client performs a write or prepare write operation,
 *  the data length must be less than GATTS_DEMO_CHAR_VAL_LEN_MAX. 
 */
@@ -27,12 +28,19 @@
 #define SCAN_RSP_CONFIG_FLAG        (1 << 1)
 
 enum {
-    IDX_SVC,
-    
-    IDX_CHAR_A,
-    IDX_CHAR_VAL_A,
+    IDX_PRI_SVC,
+    IDX_PRI_SVC_RowerData_CharDecl,
+    IDX_PRI_SVC_RowerData_CharVal,
 
-    HRS_IDX_NB,
+    HRS_PRI_SVC_TableCount,
+};
+
+enum {
+    IDX_SEC_SVC,
+    IDX_SEC_SVC_BatLevel_CharDecl,
+    IDX_SEC_SVC_BatLevel_CharVal,
+
+    HRS_SEC_SVC_TableCount,
 };
 
 typedef struct {

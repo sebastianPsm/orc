@@ -29,7 +29,7 @@ Wiring lists of the electronic components
 
 
 | ESP32-WROOM | ePaper |
-| --- | --- |
+| ----------- | ------ |
 | D35         | BUSY   |
 | D32         | RST    |
 | D33         | DC     |
@@ -39,7 +39,7 @@ Wiring lists of the electronic components
 | GND         | GND    |
 
 | ESP32-WROOM | Accel  |
-| --- | --- |
+| ----------- | ------ |
 | D13         | INT    |
 | D5          | CS     |
 | D18         | SCLK   |
@@ -47,7 +47,7 @@ Wiring lists of the electronic components
 | D19         | MISO   |
 
 | ESP32-WROOM | SD-Card          |
-| --- | --- |
+| ----------- | ---------------- |
 |             | Pin 1 (DAT 2)    |
 | D14         | Pin 2 (DAT 3)    |
 | D27         | Pin 3 (CMD I/O)  |

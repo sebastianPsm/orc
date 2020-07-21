@@ -43,7 +43,7 @@ static esp_ble_adv_data_t scan_rsp_data = {
 };
 
 static uint8_t adv_config_done       = 0;
-uint16_t heart_rate_handle_table[HRS_IDX_NB];
+uint16_t heart_rate_handle_table[HRS_SEC_SVC_TableCount];
 
 static esp_ble_adv_params_t adv_params = {
     .adv_int_min         = 0x0800,
@@ -66,25 +66,43 @@ static struct gatts_profile_inst heart_rate_profile_tab[PROFILE_NUM] = {
 
 static prepare_type_env_t prepare_write_env;
 
-/* Service */
+/* Primary Service */
+static const uint16_t primary_service_uuid            = ESP_GATT_UUID_PRI_SERVICE;
 static const uint16_t GATTS_SERVICE_UUID_BATTERY      = 0x180F;
 static const uint16_t GATTS_CHAR_UUID_BATTERY_LEVEL   = 0x2A19;
-
-static const uint16_t primary_service_uuid         = ESP_GATT_UUID_PRI_SERVICE;
-static const uint16_t character_declaration_uuid   = ESP_GATT_UUID_CHAR_DECLARE;
-static const uint8_t char_prop_read_write_notify   = ESP_GATT_CHAR_PROP_BIT_WRITE | ESP_GATT_CHAR_PROP_BIT_READ | ESP_GATT_CHAR_PROP_BIT_NOTIFY;
 static const uint8_t battery_level = 150;
 
+/* Secondary Service */
+static const uint16_t secondary_service_uuid          = ESP_GATT_UUID_SEC_SERVICE;
+static const uint16_t GATTS_SERVICE_UUID_FITNESS      = 0x1826;
+static const uint16_t GATTS_CHAR_UUID_ROWER_DATA      = 0x2AD1; 
+static const uint16_t rower_data_flags = 0;
+
+static const uint16_t character_declaration_uuid   = ESP_GATT_UUID_CHAR_DECLARE;
+static const uint8_t char_prop_read_only           = ESP_GATT_CHAR_PROP_BIT_READ;
+
+
 /* Full Database Description - Used to add attributes into the database */
-static const esp_gatts_attr_db_t gatt_db[HRS_IDX_NB] = {
-    // Service Declaration
-    [IDX_SVC]        = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid, ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(GATTS_SERVICE_UUID_BATTERY), (uint8_t *)&GATTS_SERVICE_UUID_BATTERY}},
+static const esp_gatts_attr_db_t gatt_db_sec_service[HRS_SEC_SVC_TableCount] = {
+    // Primary Service Declaration
+    [IDX_SEC_SVC]                    = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&secondary_service_uuid, ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(GATTS_SERVICE_UUID_BATTERY), (uint8_t *) &GATTS_SERVICE_UUID_BATTERY}},
 
-    /* Characteristic Declaration */
-    [IDX_CHAR_A]     = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *)&char_prop_read_write_notify}},
+    /* Battery Level Characteristic Declaration */
+    [IDX_SEC_SVC_BatLevel_CharDecl]  = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *) &char_prop_read_only}},
 
-    /* Characteristic Value Battery Level */
-    [IDX_CHAR_VAL_A] = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&GATTS_CHAR_UUID_BATTERY_LEVEL, ESP_GATT_PERM_READ , sizeof(battery_level), sizeof(battery_level), (uint8_t *)&battery_level}},
+    /* Battery Level Characteristic Value */
+    [IDX_SEC_SVC_BatLevel_CharVal]   = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&GATTS_CHAR_UUID_BATTERY_LEVEL, ESP_GATT_PERM_READ , sizeof(battery_level), sizeof(battery_level), (uint8_t *) &battery_level}},    
+};
+
+static const esp_gatts_attr_db_t gatt_db_pri_service[HRS_PRI_SVC_TableCount] = {
+    // Primary Service Declaration
+    [IDX_PRI_SVC]                     = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid, ESP_GATT_PERM_READ, sizeof(uint16_t), sizeof(GATTS_SERVICE_UUID_FITNESS), (uint8_t *) &GATTS_SERVICE_UUID_FITNESS}},
+
+    /* Battery Level Characteristic Declaration */
+    [IDX_PRI_SVC_RowerData_CharDecl]  = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ, CHAR_DECLARATION_SIZE, CHAR_DECLARATION_SIZE, (uint8_t *) &char_prop_read_only}},
+
+    /* Battery Level Characteristic Value */
+    [IDX_PRI_SVC_RowerData_CharVal]   = {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&GATTS_CHAR_UUID_ROWER_DATA, ESP_GATT_PERM_READ , sizeof(rower_data_flags), sizeof(rower_data_flags), (uint8_t *) &rower_data_flags}},    
 };
 
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
@@ -208,7 +226,12 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
             }
             adv_config_done |= SCAN_RSP_CONFIG_FLAG;
 
-            esp_err_t create_attr_ret = esp_ble_gatts_create_attr_tab(gatt_db, gatts_if, HRS_IDX_NB, SVC_INST_ID);
+            esp_err_t create_attr_ret = esp_ble_gatts_create_attr_tab(gatt_db_pri_service, gatts_if, HRS_PRI_SVC_TableCount, PRI_SVC_INST_ID);
+            if (create_attr_ret){
+                ESP_LOGE(TAG, "create attr table failed, error code = %x", create_attr_ret);
+            }
+
+            create_attr_ret = esp_ble_gatts_create_attr_tab(gatt_db_sec_service, gatts_if, HRS_SEC_SVC_TableCount, SEC_SVC_INST_ID);
             if (create_attr_ret){
                 ESP_LOGE(TAG, "create attr table failed, error code = %x", create_attr_ret);
             }
@@ -268,14 +291,14 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
             if (param->add_attr_tab.status != ESP_GATT_OK){
                 ESP_LOGE(TAG, "create attribute table failed, error code=0x%x", param->add_attr_tab.status);
             }
-            else if (param->add_attr_tab.num_handle != HRS_IDX_NB){
+            /*else if (param->add_attr_tab.num_handle != HRS_IDX_NB){
                 ESP_LOGE(TAG, "create attribute table abnormally, num_handle (%d) \
                         doesn't equal to HRS_IDX_NB(%d)", param->add_attr_tab.num_handle, HRS_IDX_NB);
-            }
+            }*/
             else {
                 ESP_LOGI(TAG, "create attribute table successfully, the number handle = %d\n",param->add_attr_tab.num_handle);
                 memcpy(heart_rate_handle_table, param->add_attr_tab.handles, sizeof(heart_rate_handle_table));
-                esp_ble_gatts_start_service(heart_rate_handle_table[IDX_SVC]);
+                esp_ble_gatts_start_service(heart_rate_handle_table[IDX_PRI_SVC]);
             }
             break;
         }
