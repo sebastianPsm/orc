@@ -104,7 +104,6 @@ static void find_motifs(void * data) {
 
     ESP_LOGI(TAG, "find_motifs task started");
     tMass * mass = mass_init(n, m);
-    ESP_LOGI(TAG, "mass: %p", mass);
 
     float * x = (float *) malloc(sizeof(float) * n);
     float * y = (float *) malloc(sizeof(float) * m);
@@ -114,9 +113,7 @@ static void find_motifs(void * data) {
         int64_t t_old = esp_timer_get_time();
         mass_findNN(mass, x, y, dist);
         int64_t t = esp_timer_get_time();
-
-        UBaseType_t hwm = uxTaskGetStackHighWaterMark(NULL);
-        ESP_LOGI(TAG, "mass: duration: %lld us, hwm: %0.2f kb", t-t_old, hwm/1024.0);
+        ESP_LOGI(TAG, "mass: duration: %lld us", t-t_old);
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
