@@ -2,6 +2,8 @@ Orc was started during the corona pendemic and the time where it wasn't possible
 
 The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display, a li-ion battery and charing electronic.
 
+![prototype](https://github.com/sebastianPsm/orc/raw/master/img/prototype.jpg)
+
 ## State of the project
 
 - Electronic parts working together
