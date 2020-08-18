@@ -70,9 +70,9 @@ extern "C" void app_main(void) {
      * Initialize ORC features
      */
     imu_init(&status); // initialize and use VSPI_HOST
-    //display_init(); // initialize and use HSPI_HOST SPI first
+    display_init(); // initialize and use HSPI_HOST SPI first
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
-    //display_start_update_task(&status);
+    display_start_update_task(&status);
 
     /*
      * Read storage directly after boot
@@ -82,13 +82,13 @@ extern "C" void app_main(void) {
     //    storage_unmount(&status);
     //}
 
-    //display_update();
+    display_update();
     
     //storage_mount(&status);
     imu_start_task(&status);
 
     //if(status.ble_active) {
-        //ble_stuff_init();
+    //    ble_stuff_init();
     //}
 
 }
