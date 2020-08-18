@@ -10,7 +10,6 @@
 #include "imu.h"
 #include "storage.h"
 #include "status.h"
-#include "MASS.h"
 
 #define TAG "main"
 
@@ -56,8 +55,6 @@ void enter_sleep_mode() {
     esp_deep_sleep_start();
 }
 
-static void find_motifs(void * data);
-
 extern "C" void app_main(void) {
     esp_err_t ret;
 
@@ -94,33 +91,6 @@ extern "C" void app_main(void) {
         //ble_stuff_init();
     //}
 
-    TaskHandle_t xHandle;
-    xTaskCreate(find_motifs, "find_motifs", 8*1014, NULL, 6, &xHandle);    
 }
 
-static void find_motifs(void * data) {
-    size_t n = 1024;
-    size_t m = 128;
 
-    ESP_LOGI(TAG, "find_motifs task started");
-    tMass * mass = mass_init(n, m);
-
-    float * x = (float *) malloc(sizeof(float) * n);
-    float * y = (float *) malloc(sizeof(float) * m);
-    float * dist = (float *) malloc(sizeof(float) * n);   
-
-    for(;;) {
-        int64_t t_old = esp_timer_get_time();
-        mass_findNN(mass, x, y, dist);
-        int64_t t = esp_timer_get_time();
-        ESP_LOGI(TAG, "mass: duration: %lld us", t-t_old);
-
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-
-    free(x);
-    free(y);
-    free(dist);
-
-    mass_terminate(&mass);
-}

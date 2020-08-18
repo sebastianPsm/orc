@@ -30,21 +30,30 @@ Wiring lists of the electronic components
 
 | ESP32-WROOM | ePaper |
 | ----------- | ------ |
-| D35         | BUSY   |
-| D32         | RST    |
-| D33         | DC     |
-| D25         | CS     |
-| D26         | CLK    |
-| D27         | DIN    |
-| GND         | GND    |
+| D35         | BUSY - ![violett](https://via.placeholder.com/15/8800ff/000000?text=+) violett |
+| D32         | RST - ![white](https://via.placeholder.com/15/ffffff/000000?text=+) white |
+| D33         | DC - ![green](https://via.placeholder.com/15/00ff00/000000?text=+) green |
+| D25         | CS - ![orange](https://via.placeholder.com/15/ffa500/000000?text=+) orange |
+| D26         | CLK - ![yellow](https://via.placeholder.com/15/ffff00/000000?text=+) yellow |
+| D27         | DIN - ![blue](https://via.placeholder.com/15/0000ff/000000?text=+) blue |
 
-| ESP32-WROOM | Accel  |
+| Charger     | ePaper   |
+| ----------- | -------- |
+| 5V          | VCC  - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
+| GND         | GND - ![yellow](https://via.placeholder.com/15/000000/000000?text=+) black |
+
+| ESP32-WROOM | Accel sensor (IMU) |
 | ----------- | ------ |
 | D13         | INT    |
 | D5          | CS     |
 | D18         | SCLK   |
 | D23         | MOSI   |
 | D19         | MISO   |
+
+| Charger     | Accel sensor (IMU) |
+| ----------- | -------- |
+| VIN         | +5V    |
+| GND         | GND    |
 
 | ESP32-WROOM | SD-Card          |
 | ----------- | ---------------- |
@@ -62,7 +71,3 @@ Wiring lists of the electronic components
 | ----------- | -------- |
 | VIN         | 5V       |
 | GND         | GND      |
-
-| ePaper      | Charger  |
-| ----------- | -------- |
-| VCC         | 5V       |
