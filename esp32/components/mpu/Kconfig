@@ -1,0 +1,20 @@
+menu "motion_driver"
+
+choice MOTIONDRIVER_CHIP_MODEL
+    prompt "MPU chip model"
+    default MOTIONDRIVER_9250
+    help
+        Select MPU chip model which will be used with MPU library.
+
+config MOTIONDRIVER_6050
+    bool "MPU6050"
+config MOTIONDRIVER_6500
+    bool "MPU6500"
+config MOTIONDRIVER_9150
+    bool "MPU9150"
+config MOTIONDRIVER_9250
+    bool "MPU9250"
+
+endchoice
+
+endmenu

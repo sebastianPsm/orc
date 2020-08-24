@@ -2,25 +2,43 @@
 #include <stdlib.h>
 #include <string.h>
 #include <esp_log.h>
+#include <esp_sleep.h>
 #include <nvs_flash.h>
-#include <SPIbus.hpp>
 
 #include "ble_stuff.h"
 #include "display.h"
-#include "imu.h"
 #include "storage.h"
 #include "status.h"
+#include "imu.h"
+#include "analysis.h"
+#include "battery.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <mpu_idf_esp32.h>
+#include <driver/include/mltypes.h>
+#include <driver/eMPL/inv_mpu_dmp_motion_driver.h>
+#include <mllite/ml_math_func.h>
+#ifdef __cplusplus
+}
+#endif
 
 #define TAG "main"
 
 void enter_sleep_mode();
+void accel_cb(void *);
 
 tStatus status = {
+    .battery_voltage = 0,
     .name_owner = NULL,
     .has_weight = false,
     .weight_kg = 0,
 
     .spm = 55,
+
+    
+    .analysis = NULL,
 
     .ble_active = false,
     .sleep_active = false,
@@ -47,10 +65,12 @@ void enter_sleep_mode() {
     status.sleep_active = true;
     status.counter_run++;
 
-    if(ESP_OK == storage_mount(&status)) {
-        storage_write_config(&status);
-        storage_unmount(&status);
-    }
+    analysis_terminate(&status.analysis);
+
+    //if(ESP_OK == storage_mount(&status)) {
+    //    storage_write_config(&status);
+    //    storage_unmount(&status);
+    //}
 
     esp_deep_sleep_start();
 }
@@ -69,10 +89,12 @@ extern "C" void app_main(void) {
     /*
      * Initialize ORC features
      */
-    imu_init(&status); // initialize and use VSPI_HOST
+    battery_init();
     display_init(); // initialize and use HSPI_HOST SPI first
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
+    imu_init(&status);
+    status.analysis = analysis_init();
 
     /*
      * Read storage directly after boot
@@ -82,15 +104,18 @@ extern "C" void app_main(void) {
     //    storage_unmount(&status);
     //}
 
-    display_update();
+    //display_update();
     
     //storage_mount(&status);
-    imu_start_task(&status);
 
     //if(status.ble_active) {
     //    ble_stuff_init();
     //}
-
+    for(;;) {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        status.battery_voltage = getBatterySoc();
+        //display_update();
+    }
 }
 
 

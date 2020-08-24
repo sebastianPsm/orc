@@ -29,7 +29,6 @@ The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display
 
 Wiring lists of the electronic components
 
-
 | ESP32-WROOM | ePaper |
 | ----------- | ------ |
 | D35         | BUSY - ![violett](https://via.placeholder.com/15/8800ff/000000?text=+) violett |
@@ -38,19 +37,14 @@ Wiring lists of the electronic components
 | D25         | CS - ![orange](https://via.placeholder.com/15/ffa500/000000?text=+) orange |
 | D26         | CLK - ![yellow](https://via.placeholder.com/15/ffff00/000000?text=+) yellow |
 | D27         | DIN - ![blue](https://via.placeholder.com/15/0000ff/000000?text=+) blue |
-
-| Charger     | ePaper   |
-| ----------- | -------- |
-| 5V          | VCC  - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
+| 3V3         | VCC  - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
 | GND         | GND - ![yellow](https://via.placeholder.com/15/000000/000000?text=+) black |
 
 | ESP32-WROOM | Accel sensor (IMU) |
 | ----------- | ------ |
 | D13         | INT    |
-| D5          | CS     |
-| D18         | SCLK   |
-| D23         | MOSI   |
-| D19         | MISO   |
+| D21         | SDA    |
+| D22         | SCL    |
 
 | Charger     | Accel sensor (IMU) |
 | ----------- | -------- |

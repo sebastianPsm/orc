@@ -176,7 +176,7 @@ esp_err_t storage_write_config(tStatus * status) {
     return ESP_OK;
 }
 
-esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z, float battery, float last_motion) {
+esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, float accel_z, float yaw, float pitch, float roll, float battery, float last_motion) {
     char buf[100];
     long old_pos;
 
@@ -194,7 +194,7 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
             return ESP_FAIL;
         }
         old_pos = ftell(f_log);
-        fprintf(f_log, "time_delta[ms],accel_x[G],accel_y[G],accel_z[G],gyro_x[deg/s],gyro_y[deg/s],gyro_z[deg/s],battery[V],last_motion[s]\r\n");
+        fprintf(f_log, "time_delta[ms],accel_x[G],accel_y[G],accel_z[G],yaw[deg],pitch[deg],roll[deg],battery[V],last_motion[s]\r\n");
         last_log_entry = esp_timer_get_time();
         status->counter_log_bytes += ftell(f_log) - old_pos;
 
@@ -206,7 +206,7 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
      */
     uint64_t t = esp_timer_get_time();
     old_pos = ftell(f_log);
-    int ret_fprintf = fprintf(f_log, "%.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %.2f\r\n", (t - last_log_entry)/1e3, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, battery, last_motion);
+    int ret_fprintf = fprintf(f_log, "%.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %+.2f, %.2f\r\n", (t - last_log_entry)/1e3, accel_x, accel_y, accel_z, yaw, pitch, roll, battery, last_motion);
     if(ret_fprintf < 0) {
         ESP_LOGE(TAG, "Error writing log: %d (fprint)", ferror(f_log));
         return ESP_FAIL;
@@ -218,7 +218,6 @@ esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, floa
     }
     last_log_entry = t;
     status->counter_log_bytes += ftell(f_log) - old_pos;
-    //ESP_LOGI(TAG, "New log entry written (%d chars)", ret_fprintf);
     
     return ESP_OK;
 }

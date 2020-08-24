@@ -3,8 +3,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "analysis.h"
 
 typedef struct {
+    /*
+     * Battery
+     */
+    float battery_voltage;
+
     /*
      * Personal data
      */
@@ -16,7 +22,11 @@ typedef struct {
      * rowing data
      */
     uint8_t spm; // strokes per minute
-    
+
+    /*
+     * Data processing
+     */
+    tAnalysis * analysis;
 
     /*
      * system data
@@ -35,7 +45,6 @@ typedef struct {
 
     uint16_t imu_sampler_rate_hz; // IMU sample rate in Hz (4 .. 1000 Hz)
     
-
     /*
      * Statistic
      */

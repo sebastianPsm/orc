@@ -122,6 +122,17 @@ void _display_update(void * data) {
         }
 
         /*
+         * battery voltage
+         */
+        if(status->battery_voltage != 0) {
+            char buf[100];
+            rotate = ROTATE_90;
+
+            sprintf(buf, "%.3f V", status->battery_voltage);
+            draw_string_in_grid_align_center(12, 10, EPD_HEIGHT, 0, buf, &Ubuntu16);
+        }
+
+        /*
          * IO
          */
         set_partial_window(frame_black, frame_red, 0,0,100,100);

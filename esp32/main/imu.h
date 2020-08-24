@@ -1,34 +1,47 @@
 #ifndef __IMU_H__
 #define __IMU_H__
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
-#include <driver/gpio.h>
-#include <esp_log.h>
-#include <esp_sleep.h>
-#include <driver/spi_master.h>
-
-#include "status.h"
-
-static constexpr int MOSI = 23;
-static constexpr int MISO = 19;
-static constexpr int SCLK = 18;
-static constexpr int CS = 5;
-static constexpr uint32_t CLOCK_SPEED = 1000000;  // up to 1MHz for all registers, and 20MHz for sensor data registers only
-
-typedef enum {
-    IMU_MODE_SLEEP,
-    IMU_MODE_ACTIVE
-} tImuMode;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stdlib.h>
 
+#include <esp_log.h>
+
+#include <mpu_idf_esp32.h>
+#include <driver/include/mltypes.h>
+#include <driver/eMPL/inv_mpu_dmp_motion_driver.h>
+#include <mllite/ml_math_func.h>
+
+#include "status.h"
+
+#define I2C_SDA_GPIO (GPIO_NUM_21)
+#define I2C_SCL_GPIO (GPIO_NUM_22)
+#define MPU_INT_GPIO (GPIO_NUM_13)
+
+typedef enum {
+    IMU_ORIENT_UNDEFINED,
+    IMU_ORIENT_PORTRAIT,
+    IMU_ORIENT_LANDSCAPE,
+    IMU_ORIENT_REVERSE_PORTRAIT,
+    IMU_ORIENT_REVERSE_LANDSCAPE
+} tImuOrientation;
+
+typedef struct {
+    tImuOrientation orientation;
+    char isI2cInitialized;
+    char isMpuInitialized;
+    char isDmpInitialized;
+} tImu;
+
+typedef enum {
+    IMU_OK,
+    IMU_UNKNOWN
+} tImuResult;
 
 void imu_init(tStatus * status);
-void imu_start_task(tStatus * status);
+tImuResult imu_term();
 
 #ifdef __cplusplus
 }
