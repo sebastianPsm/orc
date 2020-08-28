@@ -28,7 +28,7 @@ The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display
 ### Datasheets
 
 - [Display](https://www.waveshare.com/w/upload/b/bb/2.9inch-e-paper-b-specification.pdf)
-- [ESP32 Module](https://joy-it.net/files/files/Produkte/SBC-NodeMCU-ESP32/SBC-NodeMCU-ESP32-Manual-20200320.pdf)
+- [ESP32 Module (espressif esp32-devkitc)](https://www.espressif.com/en/products/devkits/esp32-devkitc/resources)
 
 ## Wiring
 
