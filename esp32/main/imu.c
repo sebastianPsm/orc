@@ -36,11 +36,10 @@ void mpu_interrupt_cb(void * data) {
     unsigned char more;
     long quat[4];
 
-    dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
-    if (sensors & INV_XYZ_ACCEL) {
-        printf("accel: %d, %d, %d\n", accel_short[0], accel_short[1], accel_short[2]);
-    }
-    ESP_LOGI(tag, ".");
+    //dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
+    //if (sensors & INV_XYZ_ACCEL) {
+    //    printf("accel: %d, %d, %d\n", accel_short[0], accel_short[1], accel_short[2]);
+    //}
 }
 
 
@@ -54,7 +53,7 @@ void imu_init(tStatus * status) {
 
     ESP_LOGI(tag, "Initialize...");
 
-    res = (int) esp32_i2c_init(I2C_NUM_0, I2C_SDA_GPIO, true, I2C_SCL_GPIO, true, 400000, 10);
+    res = (int) esp32_i2c_init(I2C_NUM_0, I2C_SDA_GPIO, true, I2C_SCL_GPIO, true, 200000, 10);
     if(res) {
         ESP_LOGE(tag, "I2C not initialized: %d", res);
         return;
@@ -88,12 +87,16 @@ void imu_init(tStatus * status) {
     dmp_register_android_orient_cb(orient_cb);
     unsigned short dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_TAP |
         DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
-        DMP_FEATURE_GYRO_CAL;
+        DMP_FEATURE_GYRO_CAL | DMP_FEATURE_PEDOMETER;
     dmp_enable_feature(dmp_features);
-    dmp_set_fifo_rate(50);
+    dmp_set_fifo_rate(20);
     mpu_set_dmp_state(1);
 
     ESP_LOGI(tag, "done (i2c: %d, mpu: %d, dmp: %d)", h.isI2cInitialized, h.isMpuInitialized, h.isDmpInitialized);
+
+    short int_status = 0;
+    mpu_get_int_status(&int_status);
+    ESP_LOGI(tag, "mpu_get_int_status: %d\n", int_status);
 }
 tImuResult imu_term() {
     return IMU_OK;

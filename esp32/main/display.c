@@ -5,17 +5,17 @@ extern int rotate;
 unsigned char* frame_black;
 unsigned char* frame_red;
 
-#define TAG "display"
+#define tag "display"
 
-TaskHandle_t update_task;
+static TaskHandle_t update_task;
 
 void display_init() {
     if (epd2in9b_init() != 0) {
-        ESP_LOGE(TAG, "e-Paper init failed");
+        ESP_LOGE(tag, "e-Paper init failed");
         vTaskDelay(2000 / portTICK_RATE_MS);
         return;
     }
-    ESP_LOGI(TAG, "e-Paper initialized");
+    ESP_LOGI(tag, "e-Paper initialized");
     clear_frame();
 
     frame_black = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
@@ -46,18 +46,18 @@ void _display_update(void * data) {
     char buffer[3];
     tStatus * status = (tStatus *) data;
 
-    ESP_LOGI(TAG, "Start task... ");
+    ESP_LOGI(tag, "Start task... ");
 
     while(true) {
-        ESP_LOGI(TAG, "Update task suspended");
+        ESP_LOGI(tag, "Update task suspended");
         vTaskSuspend( NULL );
-        ESP_LOGI(TAG, "Update...");
+        ESP_LOGI(tag, "Update...");
 
         /*
          * Check incoming data
          */
         if(status->spm > 99) {
-            ESP_LOGE(TAG, "incoming data structure spm value too high (%d)", status->spm);
+            ESP_LOGE(tag, "incoming data structure spm value too high (%d)", status->spm);
         }
 
         /*
@@ -89,7 +89,7 @@ void _display_update(void * data) {
          * sleep active
          */
         if(status->sleep_active) {
-            ESP_LOGI(TAG, "draw sleep mode active");
+            ESP_LOGI(tag, "draw sleep mode active");
             rotate = ROTATE_90;
             draw_string_in_grid_align_right(12, 11, 0, EPD_HEIGHT, 20, "zZzz", &Ubuntu16);
         }
@@ -98,7 +98,7 @@ void _display_update(void * data) {
          * draw BT logo
          */
         if(status->ble_active) {
-            ESP_LOGI(TAG, "draw ble active");
+            ESP_LOGI(tag, "draw ble active");
             rotate = ROTATE_90;
             draw_bitmap_mono(EPD_HEIGHT-bt_logo.width-10, 10, &bt_logo);
         }
@@ -107,7 +107,7 @@ void _display_update(void * data) {
          * draw log active
          */
         if(status->logging_active) {
-            ESP_LOGI(TAG, "draw logging active");
+            ESP_LOGI(tag, "draw logging active");
             rotate = ROTATE_90;
             draw_string_in_grid_align_right(12, 11, 0, EPD_HEIGHT, 46, "log", &Ubuntu16);
         }
@@ -116,7 +116,7 @@ void _display_update(void * data) {
          * draw name
          */
         if(status->name_owner) {
-            ESP_LOGI(TAG, "draw owner ('%s')", status->name_owner);
+            ESP_LOGI(tag, "draw owner ('%s')", status->name_owner);
             rotate = ROTATE_90;
             draw_string(status->name_owner, 0, 0, &Ubuntu16);
         }
@@ -138,7 +138,7 @@ void _display_update(void * data) {
         set_partial_window(frame_black, frame_red, 0,0,100,100);
         display_frame(frame_black, frame_red);
 
-        ESP_LOGI(TAG, "done");
+        ESP_LOGI(tag, "done");
     }
     vTaskDelete(NULL);
 }

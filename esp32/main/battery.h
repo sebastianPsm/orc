@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 void battery_init();
-float getBatterySoc();
+float getBatterySoc(float old);
 
 #ifdef __cplusplus
 }

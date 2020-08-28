@@ -43,7 +43,7 @@ void battery_init() {
     esp_adc_cal_value_t val_type = esp_adc_cal_characterize(unit, atten, width, ESP_ADC_CAL_VAL_DEFAULT_VREF, adc_chars);
     print_char_val_type(val_type);
 }
-float getBatterySoc() {
+float getBatterySoc(float old) {
     //Continuously sample ADC1
     uint32_t adc_reading = 0;
 
@@ -53,6 +53,8 @@ float getBatterySoc() {
     adc_reading /= 10;
 
     //Convert adc_reading to voltage in mV
-    uint32_t voltage = esp_adc_cal_raw_to_voltage(adc_reading, adc_chars);
-    return (float) voltage / 1e3 * 2.7857;
+    float voltage = (esp_adc_cal_raw_to_voltage(adc_reading, adc_chars) - 142) * (3.96/1.34) / 1e3;
+    if(old == 0) return voltage;
+
+    return old * 0.7 + voltage * 0.3;
 }

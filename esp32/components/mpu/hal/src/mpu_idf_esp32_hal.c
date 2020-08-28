@@ -1,4 +1,7 @@
 #include <mpu_idf_esp32_hal.h>
+#include <driver/eMPL/inv_mpu_dmp_motion_driver.h>
+//#define CONFIG_I2CBUS_LOG_READWRITES
+//#define CONFIG_I2CBUS_LOG_ERRORS
 
 int esp32_delay_ms(unsigned long num_ms) {
     vTaskDelay(num_ms / portTICK_PERIOD_MS);
@@ -20,6 +23,9 @@ typedef struct {
 } tEsp32MotionDriverI2C;
 
 tEsp32MotionDriverI2C * handle = NULL;
+TaskHandle_t update_task;
+
+static xQueueHandle gpio_evt_queue = NULL;
 
 #define I2C_MASTER_ACK_EN   true    /*!< Enable ack check for master */
 #define I2C_MASTER_ACK_DIS  false   /*!< Disable ack check for master */
@@ -82,8 +88,7 @@ int esp32_i2c_write(unsigned char slave_addr, unsigned char reg_addr, unsigned c
         char str[length*5+1];
         for (size_t i = 0; i < length; i++)
             sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-        I2CBUS_LOG_RW("[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s",
-            port, devAddr, length, regAddr, str);
+            printf("[port:%d, slave:0x%X] Write %d bytes to register 0x%X, data: %s\n", handle->port, slave_addr, length, reg_addr, str);
     }
 #endif
 #if defined CONFIG_I2CBUS_LOG_ERRORS
@@ -92,8 +97,7 @@ int esp32_i2c_write(unsigned char slave_addr, unsigned char reg_addr, unsigned c
 #else
     if (err) {
 #endif
-        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to write %d bytes to__ register 0x%X, error: 0x%X",
-            port, devAddr, length, regAddr, err);
+        printf("ERROR: [port:%d, slave:0x%X] Failed to write %d bytes to__ register 0x%X, error: 0x%X\n", handle->port, slave_addr, length, reg_addr, err);
     }
 #endif
     return err;
@@ -120,7 +124,7 @@ int esp32_i2c_read(unsigned char slave_addr, unsigned char reg_addr, unsigned ch
         char str[length*5+1];
         for (size_t i = 0; i < length; i++)
         sprintf(str+i*5, "0x%s%X ", (data[i] < 0x10 ? "0" : ""), data[i]);
-        I2CBUS_LOG_RW("[port:%d, slave:0x%X] Read_ %d bytes from register 0x%X, data: %s", port, devAddr, length, regAddr, str);
+        printf("[port:%d, slave:0x%X] Read_ %d bytes from register 0x%X, data: %s\n", handle->port, slave_addr, length, reg_addr, str);
     }
 #endif
 #if defined CONFIG_I2CBUS_LOG_ERRORS
@@ -129,43 +133,53 @@ int esp32_i2c_read(unsigned char slave_addr, unsigned char reg_addr, unsigned ch
 #else
     if (err) {
 #endif
-        I2CBUS_LOGE("[port:%d, slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X",
-            port, devAddr, length, regAddr, err);
+        printf("ERROR: [port:%d, slave:0x%X] Failed to read %d bytes from register 0x%X, error: 0x%X\n", handle->port, slave_addr, length, reg_addr, err);
     }
 #endif
     return err;
     return 0;
 }
-IRAM_ATTR void mpuISR(TaskHandle_t taskHandle) {
-    BaseType_t HPTaskWoken = pdFALSE;
-    vTaskNotifyGiveFromISR(taskHandle, &HPTaskWoken);
-    if (HPTaskWoken == pdTRUE) portYIELD_FROM_ISR();
+IRAM_ATTR void mpu_isr_handler(void * data) {
+    xQueueSendFromISR(gpio_evt_queue, data, NULL);
 }
 void mpu_read_task(void * data) {
     struct int_param_s * int_param = (struct int_param_s *) data;
+    
+        for(;;) {
+            xQueueReceive(gpio_evt_queue, int_param, portMAX_DELAY);
+            printf(".");
+            //if(int_param->cb != NULL)
+            //    int_param->cb(int_param->arg);
+
+            unsigned long sensor_timestamp;
+            short gyro[3], accel_short[3], sensors;
+            unsigned char more;
+            long quat[4];
+
+            dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
+            if (sensors & INV_XYZ_ACCEL) {
+                printf("accel: %d, %d, %d\n", accel_short[0], accel_short[1], accel_short[2]);
+            }
+        }    
+}
+int reg_int_cb(struct int_param_s *int_param) {
     /*
      * Setup interrupt
      */
     gpio_config_t kGPIOConfig;
+    kGPIOConfig.intr_type = GPIO_INTR_POSEDGE;
     kGPIOConfig.pin_bit_mask = (uint64_t) 0x1 << (gpio_num_t) int_param->interrupt_pin;
     kGPIOConfig.mode = GPIO_MODE_INPUT;
     kGPIOConfig.pull_up_en = GPIO_PULLUP_DISABLE;
     kGPIOConfig.pull_down_en = GPIO_PULLDOWN_ENABLE;
-    kGPIOConfig.intr_type = GPIO_INTR_POSEDGE;
-
     gpio_config(&kGPIOConfig);
-    gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
-    gpio_isr_handler_add((gpio_num_t) int_param->interrupt_pin, mpuISR, xTaskGetCurrentTaskHandle());
 
-    for(;;) {
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        
-        if(int_param->cb != NULL)
-            int_param->cb(int_param->arg);
-    }
-}
-int reg_int_cb(struct int_param_s *int_param) {
-    xTaskCreate(mpu_read_task, "mpu_read_task", 4 * 1024, (void *) int_param, 6, NULL);
+    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
+    xTaskCreate(mpu_read_task, "mpu_read_task", 2 * 1024, (void *) int_param, 5, &update_task);
+
+    gpio_install_isr_service(0); // ESP_INTR_FLAG_DEFAULT
+    gpio_isr_handler_add((gpio_num_t) int_param->interrupt_pin, mpu_isr_handler, (void *) int_param);   
+
     return 0;
 }
 inline void __no_operation() {

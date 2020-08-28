@@ -63,6 +63,7 @@ void spi_transfer(unsigned char data)
 
 int ifinit(void)
 {
+    
     gpio_config_t io_conf = {
         .intr_type = GPIO_INTR_DISABLE,
         .mode = GPIO_MODE_OUTPUT,

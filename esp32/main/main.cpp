@@ -5,6 +5,9 @@
 #include <esp_sleep.h>
 #include <nvs_flash.h>
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "ble_stuff.h"
 #include "display.h"
 #include "storage.h"
@@ -24,7 +27,7 @@ extern "C" {
 }
 #endif
 
-#define TAG "main"
+#define tag "main"
 
 void enter_sleep_mode();
 void accel_cb(void *);
@@ -60,7 +63,7 @@ tStatus status = {
 };
 
 void enter_sleep_mode() {
-    ESP_LOGE(TAG, "Entering deep sleep mode");
+    ESP_LOGE(tag, "Entering deep sleep mode");
 
     status.sleep_active = true;
     status.counter_run++;
@@ -84,7 +87,7 @@ extern "C" void app_main(void) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         ret = nvs_flash_init();
     }
-    ESP_ERROR_CHECK( ret );
+    ESP_ERROR_CHECK(ret);
 
     /*
      * Initialize ORC features
@@ -94,7 +97,7 @@ extern "C" void app_main(void) {
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
     imu_init(&status);
-    status.analysis = analysis_init();
+    //status.analysis = analysis_init();
 
     /*
      * Read storage directly after boot
@@ -104,17 +107,24 @@ extern "C" void app_main(void) {
     //    storage_unmount(&status);
     //}
 
-    //display_update();
+    display_update();
     
     //storage_mount(&status);
 
     //if(status.ble_active) {
     //    ble_stuff_init();
     //}
+
     for(;;) {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-        status.battery_voltage = getBatterySoc();
-        //display_update();
+        vTaskDelay(7000 / portTICK_PERIOD_MS);
+
+        status.battery_voltage = getBatterySoc(status.battery_voltage);
+        display_update();
+        //unsigned long count = 0;
+        //dmp_get_pedometer_step_count(&count);
+
+        //printf("pedo cnt: %ld\n", count);
+
     }
 }
 
