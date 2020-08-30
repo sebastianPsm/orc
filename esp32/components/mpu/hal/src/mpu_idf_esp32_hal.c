@@ -3,6 +3,8 @@
 //#define CONFIG_I2CBUS_LOG_READWRITES
 //#define CONFIG_I2CBUS_LOG_ERRORS
 
+#define tag "MPL"
+
 int esp32_delay_ms(unsigned long num_ms) {
     vTaskDelay(num_ms / portTICK_PERIOD_MS);
     return 0;
@@ -140,26 +142,19 @@ int esp32_i2c_read(unsigned char slave_addr, unsigned char reg_addr, unsigned ch
     return 0;
 }
 IRAM_ATTR void mpu_isr_handler(void * data) {
-    xQueueSendFromISR(gpio_evt_queue, data, NULL);
+    uint32_t in = 0;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xQueueSendFromISR(gpio_evt_queue, &in, &xHigherPriorityTaskWoken);
 }
 void mpu_read_task(void * data) {
     struct int_param_s * int_param = (struct int_param_s *) data;
-    
+
+        uint32_t out = 0;
         for(;;) {
-            xQueueReceive(gpio_evt_queue, int_param, portMAX_DELAY);
-            printf(".");
-            //if(int_param->cb != NULL)
-            //    int_param->cb(int_param->arg);
-
-            unsigned long sensor_timestamp;
-            short gyro[3], accel_short[3], sensors;
-            unsigned char more;
-            long quat[4];
-
-            dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
-            if (sensors & INV_XYZ_ACCEL) {
-                printf("accel: %d, %d, %d\n", accel_short[0], accel_short[1], accel_short[2]);
-            }
+            xQueueReceive(gpio_evt_queue, &out, portMAX_DELAY);
+            
+            if(int_param->cb != NULL)
+                int_param->cb(int_param->arg);
         }    
 }
 int reg_int_cb(struct int_param_s *int_param) {

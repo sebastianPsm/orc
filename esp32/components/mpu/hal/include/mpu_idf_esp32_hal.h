@@ -7,6 +7,7 @@
 #include <driver/i2c.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/queue.h>
 
 #include "../../motion_driver_6.12/msp430/eMD-6.0/core/driver/eMPL/inv_mpu.h"
 
@@ -40,9 +41,7 @@ void __no_operation();
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
-#define tag "MPL"
-
-#define MPL_LOGI(fmt, ...) ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, tag, fmt, ##__VA_ARGS__)
-#define MPL_LOGE(fmt, ...) ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, tag, fmt, ##__VA_ARGS__)
+#define MPL_LOGI(fmt, ...) ESP_LOG_LEVEL_LOCAL(ESP_LOG_INFO, "mpu", fmt, ##__VA_ARGS__)
+#define MPL_LOGE(fmt, ...) ESP_LOG_LEVEL_LOCAL(ESP_LOG_ERROR, "mpu", fmt, ##__VA_ARGS__)
 
 #endif /* __MPU_IDF_ESP32_HAL_H__ */

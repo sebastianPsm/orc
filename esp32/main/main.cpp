@@ -42,6 +42,11 @@ tStatus status = {
 
     
     .analysis = NULL,
+    .sensor_timestamp = 0,
+    .rot_matrix = {0},
+    .rot = {0},
+    .accel = {0},
+    .gyro = {0},
 
     .ble_active = false,
     .sleep_active = false,
@@ -97,7 +102,8 @@ extern "C" void app_main(void) {
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
     imu_init(&status);
-    //status.analysis = analysis_init();
+    ble_stuff_init();
+    status.analysis = analysis_init();
 
     /*
      * Read storage directly after boot
@@ -107,24 +113,16 @@ extern "C" void app_main(void) {
     //    storage_unmount(&status);
     //}
 
-    display_update();
+    show_boot_screen();
     
     //storage_mount(&status);
 
-    //if(status.ble_active) {
-    //    ble_stuff_init();
-    //}
 
     for(;;) {
         vTaskDelay(7000 / portTICK_PERIOD_MS);
 
         status.battery_voltage = getBatterySoc(status.battery_voltage);
         display_update();
-        //unsigned long count = 0;
-        //dmp_get_pedometer_step_count(&count);
-
-        //printf("pedo cnt: %ld\n", count);
-
     }
 }
 

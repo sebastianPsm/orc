@@ -27,6 +27,12 @@ typedef struct {
      * Data processing
      */
     tAnalysis * analysis;
+    
+    unsigned long sensor_timestamp;
+    long rot_matrix[9];
+    long rot[3];
+    short accel[3];
+    short gyro[3];
 
     /*
      * system data

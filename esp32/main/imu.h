@@ -13,6 +13,7 @@ extern "C" {
 #include <driver/include/mltypes.h>
 #include <driver/eMPL/inv_mpu_dmp_motion_driver.h>
 #include <mllite/ml_math_func.h>
+#include <mllite/data_builder.h>
 
 #include "status.h"
 
@@ -33,6 +34,8 @@ typedef struct {
     char isI2cInitialized;
     char isMpuInitialized;
     char isDmpInitialized;
+
+    struct int_param_s int_param;
 } tImu;
 
 typedef enum {

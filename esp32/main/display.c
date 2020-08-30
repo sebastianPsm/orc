@@ -20,8 +20,6 @@ void display_init() {
 
     frame_black = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
     frame_red = (unsigned char*) malloc(EPD_WIDTH * EPD_HEIGHT / 8);
-
-    //show_boot_screen();
 }
 void show_boot_screen() {
     /*
