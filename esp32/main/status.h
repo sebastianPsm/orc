@@ -3,7 +3,6 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "analysis.h"
 
 typedef struct {
     /*
@@ -22,16 +21,10 @@ typedef struct {
      * rowing data
      */
     uint8_t spm; // strokes per minute
-
-    /*
-     * Data processing
-     */
-    tAnalysis * analysis;
     
     unsigned long sensor_timestamp;
     long rot_matrix[9];
-    long rot[3];
-    short accel[3];
+    long accel[3];
     short gyro[3];
 
     /*

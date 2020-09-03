@@ -40,11 +40,8 @@ tStatus status = {
 
     .spm = 55,
 
-    
-    .analysis = NULL,
     .sensor_timestamp = 0,
     .rot_matrix = {0},
-    .rot = {0},
     .accel = {0},
     .gyro = {0},
 
@@ -73,8 +70,6 @@ void enter_sleep_mode() {
     status.sleep_active = true;
     status.counter_run++;
 
-    analysis_terminate(&status.analysis);
-
     //if(ESP_OK == storage_mount(&status)) {
     //    storage_write_config(&status);
     //    storage_unmount(&status);
@@ -94,6 +89,8 @@ extern "C" void app_main(void) {
     }
     ESP_ERROR_CHECK(ret);
 
+    uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle());
+
     /*
      * Initialize ORC features
      */
@@ -101,9 +98,11 @@ extern "C" void app_main(void) {
     display_init(); // initialize and use HSPI_HOST SPI first
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
+    analysis_init(&status);
     imu_init(&status);
     ble_stuff_init();
-    status.analysis = analysis_init();
+
+    //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
 
     /*
      * Read storage directly after boot
@@ -116,7 +115,6 @@ extern "C" void app_main(void) {
     show_boot_screen();
     
     //storage_mount(&status);
-
 
     for(;;) {
         vTaskDelay(7000 / portTICK_PERIOD_MS);

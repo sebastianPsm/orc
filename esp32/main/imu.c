@@ -1,4 +1,5 @@
 #include "imu.h"
+#include "analysis.h"
 
 #define tag "imu"
 
@@ -36,13 +37,16 @@ void mpu_interrupt_cb(void * data) {
     short sensors;
     unsigned char more;
     long quat[4];
+    long accel_l[3];
+    short accel_s[3];
 
-    dmp_read_fifo(status->gyro, status->accel, quat, &status->sensor_timestamp, &sensors, &more);
+    dmp_read_fifo(status->gyro, accel_s, quat, &status->sensor_timestamp, &sensors, &more);
     if (sensors & (INV_WXYZ_QUAT|INV_XYZ_ACCEL)) {
         inv_quaternion_to_rotation(quat, status->rot_matrix);
-        inv_quaternion_to_rotation_vector(quat, status->rot);       
+        accel_l[0] = accel_s[0]; accel_l[1] = accel_s[1]; accel_l[2] = accel_s[2];
+        inv_q_rotate(quat, accel_l, status->accel);
     }
-    
+    analysis_add(quat, status->accel);
 }
 
 
