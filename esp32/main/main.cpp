@@ -45,6 +45,7 @@ tStatus status = {
     .accel = {0},
     .gyro = {0},
 
+    .analysis = NULL,
     .ble_active = false,
     .sleep_active = false,
 
@@ -59,6 +60,7 @@ tStatus status = {
     .sleep_cb = enter_sleep_mode,
 
     .imu_sampler_rate_hz = 50,
+    .print_quat_and_accel = true,
 
     .counter_run = 0,
     .counter_log_bytes = 0
@@ -98,9 +100,9 @@ extern "C" void app_main(void) {
     display_init(); // initialize and use HSPI_HOST SPI first
     //storage_init(); // uses HSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
-    analysis_init(&status);
+    status.analysis = analysis_init(status.print_quat_and_accel);
     imu_init(&status);
-    ble_stuff_init();
+    //ble_stuff_init();
 
     //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);
 
@@ -111,14 +113,12 @@ extern "C" void app_main(void) {
     //    storage_read_config(&status);
     //    storage_unmount(&status);
     //}
-
     show_boot_screen();
     
     //storage_mount(&status);
 
     for(;;) {
         vTaskDelay(7000 / portTICK_PERIOD_MS);
-
         status.battery_voltage = getBatterySoc(status.battery_voltage);
         display_update();
     }

@@ -14,7 +14,7 @@ extern "C" {
 typedef struct {
     tMass * mass;
     float * dist;
-    tStatus * status;
+    bool print_quat_and_accel;
 } tAnalysis;
 
 typedef enum {
@@ -22,9 +22,9 @@ typedef enum {
     A_UNKNOWN
 } tAnalysisResult;
 
-void analysis_init(tStatus * status);
-tAnalysisResult analysis_terminate();
-tAnalysisResult analysis_add(long * quat, long * accel);
+tAnalysis * analysis_init(bool print_quat_and_accel);
+tAnalysisResult analysis_terminate(tAnalysis ** h);
+tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel);
 
 #ifdef __cplusplus
 }

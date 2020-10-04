@@ -46,7 +46,7 @@ void mpu_interrupt_cb(void * data) {
         accel_l[0] = accel_s[0]; accel_l[1] = accel_s[1]; accel_l[2] = accel_s[2];
         inv_q_rotate(quat, accel_l, status->accel);
     }
-    analysis_add(quat, status->accel);
+    analysis_add(status->analysis, quat, status->accel);
 }
 
 

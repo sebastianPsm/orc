@@ -1,5 +1,5 @@
 #
-# orc tool to plot live (real-time) motion data 
+# orc tool to plot live (real-time) quaternion data 
 #
 # Install dependencies with
 #  pip install pyserial

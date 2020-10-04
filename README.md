@@ -29,6 +29,8 @@ The system consists of a microcontroller, SD-card, 9-DOF-sensor, e-paper display
 
 - [Display](https://www.waveshare.com/w/upload/b/bb/2.9inch-e-paper-b-specification.pdf)
 - [ESP32 Module (espressif esp32-devkitc)](https://www.espressif.com/en/products/devkits/esp32-devkitc/resources)
+- [9 DOF Sensor](https://www.seeedstudio.com/Grove-IMU-9DOF-v2-0.html)
+- [Charger](https://github.com/adafruit/Adafruit-PowerBoost-500-Charger-PCB)
 
 ## Wiring
 

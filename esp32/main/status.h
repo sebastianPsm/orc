@@ -30,6 +30,7 @@ typedef struct {
     /*
      * system data
      */
+    void * analysis;
     bool ble_active; // Bluetooth LE 
     bool sleep_active; // Sleep mode is active
 
@@ -43,6 +44,8 @@ typedef struct {
     void (*sleep_cb)(); // Sleep callback is called if sleep_after_s exceeded
 
     uint16_t imu_sampler_rate_hz; // IMU sample rate in Hz (4 .. 1000 Hz)
+
+    bool print_quat_and_accel;
     
     /*
      * Statistic
