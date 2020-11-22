@@ -102,6 +102,10 @@ extern "C" void app_main(void) {
     display_start_update_task(&status);
     status.analysis = analysis_init(status.print_quat_and_accel);
     imu_init(&status);
+    if(!status.imu_is_initialized) {
+        show_error_screen(&status);
+        for(;;) vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
     //ble_stuff_init();
 
     //heap_caps_print_heap_info(MALLOC_CAP_DEFAULT);

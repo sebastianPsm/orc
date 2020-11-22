@@ -57,6 +57,7 @@ void imu_init(tStatus * status) {
     h.isI2cInitialized = 0;
     h.isMpuInitialized = 0;
     h.isDmpInitialized = 0;
+    status->imu_is_initialized = 0;
 
     ESP_LOGI(tag, "Initialize...");
 
@@ -87,6 +88,7 @@ void imu_init(tStatus * status) {
         return;
     }
     h.isDmpInitialized = 1;
+    status->imu_is_initialized = 1;
 
     dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_orientation));
     dmp_register_tap_cb(tap_cb);

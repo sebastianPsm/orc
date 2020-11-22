@@ -11,6 +11,7 @@ import time
 import math
 import json
 import serial
+import csv
 
 from direct.showbase.ShowBase import ShowBase
 from direct.task import Task
@@ -34,7 +35,6 @@ def get_data_via_serial():
         return (None, None)
     if not line.startswith(DATA_PREFIX):
         return (None, None)
-    
     data_str = line[len(DATA_PREFIX):]
     data = json.loads(data_str)
     quat = [fp_str2float(s, 32) for s in data[0:4]]
@@ -42,8 +42,12 @@ def get_data_via_serial():
     return (quat, accel)
 
 class MyApp(ShowBase):
-    def __init__(self):
+    def __init__(self, logcsv):
         ShowBase.__init__(self)
+        self.logcsv = logcsv
+        self.log_count = 0
+        self.log_time_offset = 0
+        self.log_time = 0
 
         # Add the spinCameraTask procedure to the task manager.
         self.taskMgr.add(self.spinCameraTask, "SpinCameraTask")
@@ -102,6 +106,17 @@ class MyApp(ShowBase):
     
     def getSerialDataTask(self, task):
         quat, accel = get_data_via_serial()
+        if not quat or not accel:
+            return Task.cont
+
+        if self.log_time_offset == 0:
+            self.log_time_offset = time.time()
+        t = time.time() - self.log_time_offset
+
+        self.logcsv.writerow([(t - self.log_time)*1000, self.log_count] + quat + accel)
+        self.log_count += 1
+        self.log_time = t
+        
         if quat:
             self.pandaActor.setQuat(p3d.LQuaternionf(quat[0], quat[1], quat[2], quat[3]))
         if accel:
@@ -133,5 +148,7 @@ if __name__ == "__main__":
 
     SER = serial.Serial(port, 115200, timeout=1)
 
-    app = MyApp()
-    app.run()
+    with open("log.csv", "w", newline='') as file:
+        csvfile = csv.writer(file, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        app = MyApp(csvfile)
+        app.run()

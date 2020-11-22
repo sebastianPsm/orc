@@ -25,19 +25,34 @@ void show_boot_screen() {
     /*
      * Clear black and clear red frame
      */
-    paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
-    clear(0); // 0: UNCOLORED, 1: COLORED
     paint(frame_red, EPD_WIDTH, EPD_HEIGHT);
     clear(0); // 0: UNCOLORED, 1: COLORED
+    paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
+    clear(0); // 0: UNCOLORED, 1: COLORED    
     
     rotate = ROTATE_90;
     draw_string_in_grid_align_center(1, 0, 300,  EPD_WIDTH/2-10, "Open Rowing Computer", &Ubuntu16);
     
-    set_partial_window(frame_black, frame_red, 0,0,100,100);
+    set_partial_window(frame_black, frame_red, 0, 0, 100, 100);
     display_frame(frame_black, frame_red);
 }
-void show_error_screen() {
+void show_error_screen(const tStatus * status) {
+    paint(frame_red, EPD_WIDTH, EPD_HEIGHT);
+    clear(0); // 0: UNCOLORED, 1: COLORED
+    paint(frame_black, EPD_WIDTH, EPD_HEIGHT);
+    clear(0); // 0: UNCOLORED, 1: COLORED
+
+    char buf[256];
+
+    rotate = ROTATE_90;
+    sprintf(buf, "ERROR:");
+    draw_string_in_grid_align_right(5, 0, 0, calculate_width(buf, &Ubuntu16), 0, buf, &Ubuntu16);
+    sprintf(buf, " IMU: %s", status->imu_is_initialized?"ok":"failure");
+    draw_string_in_grid_align_right(5, 0, 0, calculate_width(buf, &Ubuntu16), 16, buf, &Ubuntu16);
     
+
+    set_partial_window(frame_black, frame_red, 0, 0, 100, 100);
+    display_frame(frame_black, frame_red);
 }
 
 void _display_update(void * data) {
