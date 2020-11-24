@@ -38,15 +38,20 @@ void mpu_interrupt_cb(void * data) {
     unsigned char more;
     long quat[4];
     long accel_l[3];
+    long gyro_l[3];
     short accel_s[3];
+    short gyro_s[3];
+    
 
-    dmp_read_fifo(status->gyro, accel_s, quat, &status->sensor_timestamp, &sensors, &more);
-    if (sensors & (INV_WXYZ_QUAT|INV_XYZ_ACCEL)) {
+    dmp_read_fifo(gyro_s, accel_s, quat, &status->sensor_timestamp, &sensors, &more);
+    if (sensors & (INV_WXYZ_QUAT|INV_XYZ_ACCEL|INV_XYZ_GYRO)) {
         inv_quaternion_to_rotation(quat, status->rot_matrix);
         accel_l[0] = accel_s[0]; accel_l[1] = accel_s[1]; accel_l[2] = accel_s[2];
+        gyro_l[0] = gyro_s[0]; gyro_l[1] = gyro_s[1]; gyro_l[2] = gyro_s[2];
         inv_q_rotate(quat, accel_l, status->accel);
+        inv_q_rotate(quat, gyro_l, status->gyro);
     }
-    analysis_add(status->analysis, quat, status->accel);
+    analysis_add(status->analysis, quat, status->accel, status->gyro);
 }
 
 

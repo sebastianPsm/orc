@@ -25,7 +25,7 @@ typedef struct {
     unsigned long sensor_timestamp;
     long rot_matrix[9];
     long accel[3];
-    short gyro[3];
+    long gyro[3];
 
     /*
      * system data

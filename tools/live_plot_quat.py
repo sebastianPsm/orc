@@ -32,14 +32,15 @@ def get_data_via_serial():
     try:
         line = SER.readline().decode("ascii")
     except UnicodeDecodeError:
-        return (None, None)
+        return (None, None, None)
     if not line.startswith(DATA_PREFIX):
-        return (None, None)
+        return (None, None, None)
     data_str = line[len(DATA_PREFIX):]
     data = json.loads(data_str)
     quat = [fp_str2float(s, 32) for s in data[0:4]]
     accel = [fp_str2float(s, 16) for s in data[4:7]]
-    return (quat, accel)
+    gyro =  [fp_str2float(s, 16) for s in data[7:10]]
+    return (quat, accel, gyro)
 
 class MyApp(ShowBase):
     def __init__(self, logcsv):
@@ -105,15 +106,15 @@ class MyApp(ShowBase):
         return Task.cont
     
     def getSerialDataTask(self, task):
-        quat, accel = get_data_via_serial()
-        if not quat or not accel:
+        quat, accel, gyro = get_data_via_serial()
+        if not quat or not accel or not gyro:
             return Task.cont
 
         if self.log_time_offset == 0:
             self.log_time_offset = time.time()
         t = time.time() - self.log_time_offset
 
-        self.logcsv.writerow([(t - self.log_time)*1000, self.log_count] + quat + accel)
+        self.logcsv.writerow([(t - self.log_time)*1000, self.log_count] + quat + accel + gyro)
         self.log_count += 1
         self.log_time = t
         

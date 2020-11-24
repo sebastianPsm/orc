@@ -20,7 +20,7 @@ tAnalysisResult analysis_terminate(tAnalysis ** h) {
 
     return A_OK;
 }
-tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel) {
+tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel, long * gyro) {
     double accel_xy = sqrt((double) accel[0]*accel[0] + (double) accel[1]*accel[1]);
     double accel_z = (double) accel[2];
     if(h->print_quat_and_accel) {
@@ -30,7 +30,9 @@ tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel) {
         printf(", ");
         for(unsigned idx = 0; idx < 3; idx++)
             printf("%ld%s", accel[idx], idx != 2 ? ", " : "");
-        printf(", %f, %f", accel_xy, accel_z);
+        printf(", %f, %f, ", accel_xy, accel_z);
+        for(unsigned idx = 0; idx < 3; idx++)
+            printf("%ld%s", gyro[idx], idx != 2 ? ", " : "");
         printf("]\n");
     }
 

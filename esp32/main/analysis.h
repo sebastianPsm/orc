@@ -24,7 +24,7 @@ typedef enum {
 
 tAnalysis * analysis_init(bool print_quat_and_accel);
 tAnalysisResult analysis_terminate(tAnalysis ** h);
-tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel);
+tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel, long * gyro);
 
 #ifdef __cplusplus
 }
