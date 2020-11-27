@@ -50,13 +50,13 @@ Wiring lists of the electronic components
 | ESP32-WROOM | Accel sensor (IMU) |
 | ----------- | ------ |
 | D13         | INT    |
-| D21         | SDA    |
-| D22         | SCL    |
+| D21         | SDA - ![white](https://via.placeholder.com/15/ffffff/000000?text=+) white |
+| D22         | SCL - ![yellow](https://via.placeholder.com/15/ffff00/000000?text=+) yellow |
 
 | Charger     | Accel sensor (IMU) |
 | ----------- | -------- |
-| VIN         | +5V    |
-| GND         | GND    |
+| VIN         | +5V - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
+| GND         | GND - ![black](https://via.placeholder.com/15/000000/000000?text=+) black |
 
 | ESP32-WROOM | SD-Card          |
 | ----------- | ---------------- |
