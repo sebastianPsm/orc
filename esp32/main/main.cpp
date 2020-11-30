@@ -35,8 +35,6 @@ void accel_cb(void *);
 tStatus status = {
     .battery_voltage = 0,
     .name_owner = NULL,
-    .has_weight = false,
-    .weight_kg = 0,
 
     .spm = 55,
 
@@ -51,7 +49,6 @@ tStatus status = {
 
     .logging_active = false,
     .sd_is_mounted = false,
-    .log_file_suffix = 0,
     .new_log_file = true,
 
     .imu_is_initialized = false,
@@ -60,23 +57,13 @@ tStatus status = {
     .sleep_cb = enter_sleep_mode,
 
     .imu_sampler_rate_hz = 50,
-    .print_quat_and_accel = true,
+    .print_quat_and_accel = false,
 
-    .counter_run = 0,
     .counter_log_bytes = 0
 };
 
 void enter_sleep_mode() {
     ESP_LOGE(tag, "Entering deep sleep mode");
-
-    status.sleep_active = true;
-    status.counter_run++;
-
-    //if(ESP_OK == storage_mount(&status)) {
-    //    storage_write_config(&status);
-    //    storage_unmount(&status);
-    //}
-
     esp_deep_sleep_start();
 }
 
@@ -93,14 +80,16 @@ extern "C" void app_main(void) {
 
     uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle());
 
+    esp_log_level_set("*", ESP_LOG_DEBUG);
+
     /*
      * Initialize ORC features
      */
     battery_init();
     display_init(); // initialize and use HSPI_HOST SPI first
-    //storage_init(); // uses HSPI_HOST SPI --> don't change the order
+    storage_init(); // uses VSPI_HOST SPI --> don't change the order
     display_start_update_task(&status);
-    status.analysis = analysis_init(status.print_quat_and_accel);
+    status.analysis = analysis_init(&status);
     imu_init(&status);
     if(!status.imu_is_initialized) {
         show_error_screen(&status);
@@ -113,16 +102,30 @@ extern "C" void app_main(void) {
     /*
      * Read storage directly after boot
      */    
-    //if(ESP_OK == storage_mount(&status)) {
-    //    storage_read_config(&status);
-    //    storage_unmount(&status);
-    //}
+    if(ESP_OK == storage_mount(&status)) {
+        if(ESP_FAIL == storage_read_config(&status))
+            storage_write_config(&status);
+        storage_unmount(&status);
+    }
+
+    /*
+     * Acticate logging
+     */
+    if(status.logging_active) {
+        ((tAnalysis *) status.analysis)->print_quat_and_accel = true;
+        storage_mount(&status);
+    }
+
+    /*
+     * Show boot screen
+     */
     show_boot_screen();
     
-    //storage_mount(&status);
-
+    /*
+     * Run loop
+     */
     for(;;) {
-        vTaskDelay(7000 / portTICK_PERIOD_MS);
+        vTaskDelay(10000 / portTICK_PERIOD_MS);
         status.battery_voltage = getBatterySoc(status.battery_voltage);
         display_update();
     }

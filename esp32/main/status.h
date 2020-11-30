@@ -14,8 +14,6 @@ typedef struct {
      * Personal data
      */
     char * name_owner; // Name of the device owner
-    bool has_weight;
-    uint8_t weight_kg; // Weight [kg] of the entire vessel
     
     /*
      * rowing data
@@ -35,8 +33,8 @@ typedef struct {
     bool sleep_active; // Sleep mode is active
 
     bool logging_active; // Logging data active
-    bool sd_is_mounted; // SD card status
     unsigned log_file_suffix; // Log file suffix
+    bool sd_is_mounted; // SD card status
     bool new_log_file; // log file already created
 
     bool imu_is_initialized; // IMU sensor status
@@ -50,7 +48,6 @@ typedef struct {
     /*
      * Statistic
      */
-    unsigned counter_run;
     long counter_log_bytes;
 } tStatus;
 

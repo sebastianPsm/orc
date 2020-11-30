@@ -100,7 +100,7 @@ int ifinit(void)
     };
 
     //Initialize the SPI bus
-    ret = spi_bus_initialize(HSPI_HOST, &buscfg, 1);
+    ret = spi_bus_initialize(HSPI_HOST, &buscfg, 0);
     switch (ret) {
     case ESP_ERR_INVALID_ARG:
         ESP_LOGE("EPDIF", "INVALID ARG");

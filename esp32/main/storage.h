@@ -15,7 +15,7 @@ esp_err_t storage_unmount(tStatus * status_out);
 
 esp_err_t storage_read_config(tStatus * status_out);
 esp_err_t storage_write_config(tStatus * status);
-esp_err_t storage_write_log(tStatus * status, float accel_x, float accel_y, float accel_z, float gyro_x, float gyro_y, float gyro_z, float battery, float last_motion);
+esp_err_t storage_write_log(tStatus * status, long accel_x, long accel_y, long accel_z, long yaw, long pitch, long roll, float battery, float last_motion);
 
 #ifdef __cplusplus
 }

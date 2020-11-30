@@ -44,8 +44,8 @@ Wiring lists of the electronic components
 | D25         | CS - ![orange](https://via.placeholder.com/15/ffa500/000000?text=+) orange |
 | D26         | CLK - ![yellow](https://via.placeholder.com/15/ffff00/000000?text=+) yellow |
 | D27         | DIN - ![blue](https://via.placeholder.com/15/0000ff/000000?text=+) blue |
-| 3V3         | VCC  - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
-| GND         | GND - ![yellow](https://via.placeholder.com/15/000000/000000?text=+) black |
+| 3V3         | VCC    |
+| GND         | GND    |
 
 | ESP32-WROOM | Accel sensor (IMU) |
 | ----------- | ------ |
@@ -58,17 +58,15 @@ Wiring lists of the electronic components
 | VIN         | +5V - ![red](https://via.placeholder.com/15/ff0000/000000?text=+) red |
 | GND         | GND - ![black](https://via.placeholder.com/15/000000/000000?text=+) black |
 
-| ESP32-WROOM | SD-Card          |
-| ----------- | ---------------- |
-|             | Pin 1 (DAT 2)    |
-| D14         | Pin 2 (DAT 3)    |
-| D27         | Pin 3 (CMD I/O)  |
-| GND         | Pin 4 (GND)      |
-| 3V3         | Pin 5 (VDD)      |
-| D26         | Pin 6 (CLK)      |
-| GND         | Pin 7 (GND)      |
-| D12         | Pin 8 (DAT 0)    |
-|             | Pin 9 (DAT 1)    |
+| ESP32-WROOM | Micro-SD Breakout Board |
+| ----------- | ----------------------- |
+| D5 (CS)     | CS                      |
+| D23 (MOSI)  | DI                      |
+| D18 (CLK)   | CLK                     |
+| D19 (MISO)  | DO                      |
+| GND         | GND                     |
+| 3V3         | 3v                      |
+SPI: VSPI
 
 | ESP32-WROOM | Charger  |
 | ----------- | -------- |
