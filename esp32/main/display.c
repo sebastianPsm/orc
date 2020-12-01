@@ -146,6 +146,18 @@ void _display_update(void * data) {
         }
 
         /*
+         * draw log size
+         */
+        if(status->counter_log_bytes) {
+            char buf[100];
+            ESP_LOGI(tag, "log size (%ld B), file suffix: %d", status->counter_log_bytes, status->log_file_suffix);
+            rotate = ROTATE_90;
+
+            sprintf(buf, "%lu kB (%d)", status->counter_log_bytes/1024, status->log_file_suffix);
+            draw_string_in_grid_align_center(12, 6, EPD_HEIGHT, 0, buf, &Ubuntu16);
+        }
+
+        /*
          * IO
          */
         set_partial_window(frame_black, frame_red, 0,0,100,100);

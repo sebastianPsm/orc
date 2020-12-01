@@ -16,7 +16,7 @@ typedef struct {
     tMass * mass;
     float * dist;
     bool print_quat_and_accel;
-    tStatus * status;
+    const tStatus * status;
 } tAnalysis;
 
 typedef enum {

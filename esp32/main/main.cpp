@@ -80,14 +80,12 @@ extern "C" void app_main(void) {
 
     uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle());
 
-    esp_log_level_set("*", ESP_LOG_DEBUG);
-
     /*
      * Initialize ORC features
      */
     battery_init();
-    display_init(); // initialize and use HSPI_HOST SPI first
-    storage_init(); // uses VSPI_HOST SPI --> don't change the order
+    display_init(); // initialize and use HSPI_HOST SPI
+    storage_init(); // initialize and use VSPI_HOST SPI
     display_start_update_task(&status);
     status.analysis = analysis_init(&status);
     imu_init(&status);
