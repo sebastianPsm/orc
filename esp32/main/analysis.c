@@ -22,22 +22,8 @@ tAnalysisResult analysis_terminate(tAnalysis ** h) {
     return A_OK;
 }
 tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel, long * gyro) {
-    double accel_xy = sqrt((double) accel[0]*accel[0] + (double) accel[1]*accel[1]);
-    double accel_z = (double) accel[2];
-
     if(!h->print_quat_and_accel) return A_OK;
     storage_write_log(h->status, accel[0], accel[1], accel[2], gyro[0], gyro[1], gyro[2], h->status->battery_voltage, 0);
-
-    //printf("motion data: [");
-    //for(unsigned idx = 0; idx < 4; idx++)
-    //    printf("%ld%s", quat[idx], idx != 3 ? ", " : "");
-    //printf(", ");
-    //for(unsigned idx = 0; idx < 3; idx++)
-    //    printf("%ld%s", accel[idx], idx != 2 ? ", " : "");
-    //printf(", %f, %f, ", accel_xy, accel_z);
-    //for(unsigned idx = 0; idx < 3; idx++)
-    //    printf("%ld%s", gyro[idx], idx != 2 ? ", " : "");
-    //printf("]\n");
 
     return A_OK;
 }

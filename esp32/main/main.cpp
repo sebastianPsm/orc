@@ -42,6 +42,7 @@ tStatus status = {
     .rot_matrix = {0},
     .accel = {0},
     .gyro = {0},
+    .temperature = -999,
 
     .analysis = NULL,
     .ble_active = false,
@@ -122,9 +123,14 @@ extern "C" void app_main(void) {
     /*
      * Run loop
      */
+    long temp;
     for(;;) {
         vTaskDelay(10000 / portTICK_PERIOD_MS);
         status.battery_voltage = getBatterySoc(status.battery_voltage);
+
+        mpu_get_temperature(&temp, NULL);
+        status.temperature = ((float) temp / 65536.0) - 32 * 5 / 9;
+
         display_update();
     }
 }

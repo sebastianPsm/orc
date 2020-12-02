@@ -41,7 +41,6 @@ void mpu_interrupt_cb(void * data) {
     long gyro_l[3];
     short accel_s[3];
     short gyro_s[3];
-    
 
     dmp_read_fifo(gyro_s, accel_s, quat, &status->sensor_timestamp, &sensors, &more);
     if (sensors & (INV_WXYZ_QUAT|INV_XYZ_ACCEL|INV_XYZ_GYRO)) {
@@ -85,7 +84,7 @@ void imu_init(tStatus * status) {
     h.isMpuInitialized = 1;
 
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
-    mpu_set_sample_rate(50);
+    mpu_set_sample_rate(status->imu_sampler_rate_hz);
 
     res = dmp_load_motion_driver_firmware();
     if(res) {

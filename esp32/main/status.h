@@ -24,6 +24,7 @@ typedef struct {
     long rot_matrix[9];
     long accel[3];
     long gyro[3];
+    float temperature;
 
     /*
      * system data

@@ -90,14 +90,7 @@ void _display_update(void * data) {
         rotate = ROTATE_90;
         draw_string_in_grid_align_center(3, 0, EPD_HEIGHT, 0, buffer, &Calibri);
         draw_string_in_grid_align_center(6, 1, EPD_HEIGHT, 100, "SPM", &Ubuntu16);
-
-        draw_vertical_line(98, 0, 10, 1);
-        draw_vertical_line(99, 0, 10, 1);
-        draw_vertical_line(98, EPD_WIDTH-10, EPD_WIDTH, 1);
-        draw_vertical_line(99, EPD_WIDTH-10, EPD_WIDTH, 1);
         
-        rotate = ROTATE_0;
-
         /*
          * sleep active
          */
@@ -141,8 +134,8 @@ void _display_update(void * data) {
             char buf[100];
             rotate = ROTATE_90;
 
-            sprintf(buf, "%.3f V", status->battery_voltage);
-            draw_string_in_grid_align_center(12, 10, EPD_HEIGHT, 0, buf, &Ubuntu16);
+            sprintf(buf, "%.2f V", status->battery_voltage);            
+            draw_string_in_grid_align_right(12, 8, calculate_width(buf, &Ubuntu16), EPD_HEIGHT, EPD_WIDTH-16, buf, &Ubuntu16);
         }
 
         /*
@@ -154,7 +147,18 @@ void _display_update(void * data) {
             rotate = ROTATE_90;
 
             sprintf(buf, "%lu kB (%d)", status->counter_log_bytes/1024, status->log_file_suffix);
-            draw_string_in_grid_align_center(12, 6, EPD_HEIGHT, 0, buf, &Ubuntu16);
+            draw_string_in_grid_align_center(12, 6, EPD_HEIGHT, EPD_WIDTH-16, buf, &Ubuntu16);
+        }
+
+        /*
+         * Temperature
+         */
+        if(status->temperature != -999) {
+            char buf[100];
+            rotate = ROTATE_90;
+
+            sprintf(buf, "%.1f°C", status->temperature);
+            draw_string_in_grid_align_right(12, 8, calculate_width(buf, &Ubuntu16), EPD_HEIGHT, 0, buf, &Ubuntu16);
         }
 
         /*
