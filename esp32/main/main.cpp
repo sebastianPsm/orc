@@ -64,7 +64,13 @@ tStatus status = {
 };
 
 void enter_sleep_mode() {
-    ESP_LOGE(tag, "Entering deep sleep mode");
+    ESP_LOGI(tag, "Entering deep sleep mode");
+
+    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    if(status.sd_is_mounted)
+        storage_unmount(&status);
+
     esp_deep_sleep_start();
 }
 
@@ -80,6 +86,7 @@ extern "C" void app_main(void) {
     ESP_ERROR_CHECK(ret);
 
     uxTaskGetStackHighWaterMark(xTaskGetCurrentTaskHandle());
+    esp_sleep_enable_ext0_wakeup(MPU_INT_GPIO, 0);
 
     /*
      * Initialize ORC features
@@ -104,7 +111,7 @@ extern "C" void app_main(void) {
     if(ESP_OK == storage_mount(&status)) {
         if(ESP_FAIL == storage_read_config(&status))
             storage_write_config(&status);
-        storage_unmount(&status);
+        //storage_unmount(&status);
     }
 
     /*
@@ -130,6 +137,8 @@ extern "C" void app_main(void) {
 
         mpu_get_temperature(&temp, NULL);
         status.temperature = ((float) temp / 65536.0) - 32 * 5 / 9;
+
+        printf("."); fflush(stdout);
 
         display_update();
     }

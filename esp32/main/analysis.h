@@ -17,6 +17,7 @@ typedef struct {
     float * dist;
     bool print_quat_and_accel;
     const tStatus * status;
+    tLogEntry logEntry;
 } tAnalysis;
 
 typedef enum {
@@ -26,7 +27,7 @@ typedef enum {
 
 tAnalysis * analysis_init(const tStatus * status);
 tAnalysisResult analysis_terminate(tAnalysis ** h);
-tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel, long * gyro);
+tAnalysisResult analysis_add(tAnalysis * h, long * quat, long * accel, long * gyro, float last_motion_s);
 
 #ifdef __cplusplus
 }

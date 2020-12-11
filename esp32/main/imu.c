@@ -50,9 +50,36 @@ void mpu_interrupt_cb(void * data) {
         inv_q_rotate(quat, accel_l, status->accel);
         inv_q_rotate(quat, gyro_l, status->gyro);
     }
-    analysis_add(status->analysis, quat, status->accel, status->gyro);
-}
+    analysis_add(status->analysis, quat, status->accel, status->gyro, h.last_detected_motion_s);
 
+    /*
+     * Sleep if no motion
+     */
+    float accel_f[3];
+    float accel_sum;
+    accel_f[0] = (float) status->accel[0] / (float) (1 << 14);
+    accel_f[1] = (float) status->accel[1] / (float) (1 << 14);
+    accel_f[2] = (float) status->accel[2] / (float) (1 << 14);
+
+    accel_sum = sqrt(accel_f[0]*accel_f[0] + accel_f[1]*accel_f[1] + accel_f[2]*accel_f[2]);
+    h.accel_sum = h.a * h.accel_sum + (1-h.a) * accel_sum;
+    h.dAccel_sum = h.accel_sum - h.accel_sum_old;
+    h.accel_sum_old = h.accel_sum;
+
+    if(fabs(h.dAccel_sum) > 0.03)
+        h.last_detected_motion = esp_timer_get_time();
+    h.last_detected_motion_s = (esp_timer_get_time() - h.last_detected_motion) / 1000000.0;
+    if(h.last_detected_motion_s > 60.0) {
+        mpu_set_dmp_state(0);
+        mpu_lp_motion_interrupt(500, 1, 5);
+        status->sleep_cb();
+    }
+
+    /*
+     * Try int disable
+     */
+    ESP_LOGI(tag, "interrupt %f", h.last_detected_motion_s);
+}
 
 void imu_init(tStatus * status) {
     int res;
@@ -61,6 +88,7 @@ void imu_init(tStatus * status) {
     h.isI2cInitialized = 0;
     h.isMpuInitialized = 0;
     h.isDmpInitialized = 0;
+    h.a = 0.6;
     status->imu_is_initialized = 0;
 
     ESP_LOGI(tag, "Initialize...");

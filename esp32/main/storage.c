@@ -12,6 +12,8 @@
 
 
 #define MOUNT_POINT "/sdcard"
+#define HEADER "time_delta[ms],accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,battery[V],last_motion[s]"
+#define FORMAT "%.2f,%ld,%ld,%ld,%ld,%ld,%ld,%.2f,%.2f"
 
 // Pin definition
 #define PIN_NUM_MOSI GPIO_NUM_23
@@ -25,6 +27,7 @@
 
 uint64_t last_log_entry;
 FILE * f_log = NULL;
+char * buf = NULL;
 
 sdmmc_card_t * card = NULL;
 sdmmc_host_t host = SDSPI_HOST_DEFAULT();
@@ -67,6 +70,9 @@ esp_err_t storage_init() {
         ESP_LOGE("EPDIF", "All OK");
     }
     assert(ret == ESP_OK);
+
+    buf = malloc(1024 * sizeof(char));
+    f_log = NULL;
     
     return ESP_OK;
 }
@@ -93,7 +99,6 @@ esp_err_t storage_mount(tStatus * status_out) {
     /*
      * Find free log file
      */
-    char buf[200];
     unsigned idx;
     for(idx = 0; idx < 10000; idx++) {
         sprintf(buf, MOUNT_POINT"/log%05d.csv", idx);
@@ -106,6 +111,8 @@ esp_err_t storage_mount(tStatus * status_out) {
 }
 esp_err_t storage_unmount(tStatus * status_out) {
     if(status_out->sd_is_mounted == false) return ESP_OK;
+    ESP_LOGI(TAG, "Unmount...");
+
     if(f_log) {
         int ret_fclose = fclose(f_log);
         if(ret_fclose != 0) {
@@ -202,8 +209,7 @@ esp_err_t storage_write_config(tStatus * status) {
     return ESP_OK;
 }
 
-esp_err_t storage_write_log(tStatus * status, long accel_x, long accel_y, long accel_z, long gyro_x, long gyro_y, long gyro_z, float battery, float last_motion) {
-    char buf[100];
+esp_err_t storage_write_log(tStatus * status, tLogEntry * tLogEntry) {
     long old_pos;
 
     if(status == NULL) return ESP_ERR_INVALID_ARG;
@@ -221,28 +227,23 @@ esp_err_t storage_write_log(tStatus * status, long accel_x, long accel_y, long a
             return ESP_FAIL;
         }
         old_pos = ftell(f_log);
-        fprintf(f_log, "time_delta[ms],accel_x,accel_y,accel_z,gyro_x,gyro_y,gyro_z,battery[V],last_motion[s]\r\n");
+        fprintf(f_log, HEADER"\r\n");
         last_log_entry = esp_timer_get_time();
         status->counter_log_bytes += ftell(f_log) - old_pos;
     }
-    
+
     /*
      * Write log entry
      */
     uint64_t t = esp_timer_get_time();
     old_pos = ftell(f_log);
-    int ret_fprintf = fprintf(f_log, "%.2f,%ld,%ld,%ld,%ld,%ld,%ld,%+.2f\r\n", (t - last_log_entry)/1e3, accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z, battery);
+    sprintf(buf, FORMAT"\r\n", (t - last_log_entry)/1e3, tLogEntry->accel_x, tLogEntry->accel_y, tLogEntry->accel_z, tLogEntry->gyro_x, tLogEntry->gyro_y, tLogEntry->gyro_z, tLogEntry->battery, tLogEntry->last_motion);
+    int ret_fprintf = fprintf(f_log, buf);
     if(ret_fprintf < 0) {
         ESP_LOGE(TAG, "Error writing log: %d (fprint)", ferror(f_log));
         return ESP_FAIL;
     }
-    int ret_fflush = fflush(f_log);
-    if(ret_fflush != 0) {
-        ESP_LOGE(TAG, "Error writing log: %d (fflush)", ferror(f_log));
-        return ESP_FAIL;
-    }
     last_log_entry = t;
-    status->counter_log_bytes += ftell(f_log) - old_pos;
-    
+
     return ESP_OK;
 }

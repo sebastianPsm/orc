@@ -170,7 +170,7 @@ int reg_int_cb(struct int_param_s *int_param) {
     gpio_config(&kGPIOConfig);
 
     gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    xTaskCreate(mpu_read_task, "mpu_read_task", 2 * 1024, (void *) int_param, 5, &update_task);
+    xTaskCreate(mpu_read_task, "mpu_read_task", 4 * 1024, (void *) int_param, 5, &update_task);
 
     gpio_install_isr_service(0); // ESP_INTR_FLAG_DEFAULT
     gpio_isr_handler_add((gpio_num_t) int_param->interrupt_pin, mpu_isr_handler, (void *) int_param);   

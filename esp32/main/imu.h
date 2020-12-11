@@ -35,6 +35,13 @@ typedef struct {
     char isMpuInitialized;
     char isDmpInitialized;
 
+    float a;
+    float accel_sum;
+    float accel_sum_old;
+    float dAccel_sum;
+    int64_t last_detected_motion;
+    float last_detected_motion_s;
+
     struct int_param_s int_param;
 } tImu;
 
