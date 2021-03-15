@@ -58,16 +58,16 @@ esp_err_t storage_init() {
     ret = spi_bus_initialize(host.slot, &bus_cfg, SPI_DMA_CHAN);
     switch (ret) {
     case ESP_ERR_INVALID_ARG:
-        ESP_LOGE("EPDIF", "INVALID ARG");
+        ESP_LOGE(TAG, "INVALID ARG");
         break;
     case ESP_ERR_INVALID_STATE:
-        ESP_LOGE("EPDIF", "INVALID STATE");
+        ESP_LOGE(TAG, "INVALID STATE");
         break;
     case ESP_ERR_NO_MEM:
-        ESP_LOGE("EPDIF", "INVALID NO MEMORY");
+        ESP_LOGE(TAG, "INVALID NO MEMORY");
         break;
     case ESP_OK:
-        ESP_LOGE("EPDIF", "All OK");
+        ESP_LOGI(TAG, "All OK");
     }
     assert(ret == ESP_OK);
 
@@ -194,6 +194,7 @@ esp_err_t storage_write_config(tStatus * status) {
 
     cJSON * json = cJSON_CreateObject();
     if(status->name_owner) cJSON_AddStringToObject(json, "name_owner", status->name_owner);
+    cJSON_AddStringToObject(json, "name_owner", "");
     cJSON_AddBoolToObject(json, "ble_active", status->ble_active==0?false:true);
     cJSON_AddBoolToObject(json, "logging_active", status->logging_active==0?false:true);
     cJSON_AddNumberToObject(json, "imu_sample_rate_hz", status->imu_sampler_rate_hz);
@@ -243,6 +244,7 @@ esp_err_t storage_write_log(tStatus * status, tLogEntry * tLogEntry) {
         ESP_LOGE(TAG, "Error writing log: %d (fprint)", ferror(f_log));
         return ESP_FAIL;
     }
+    status->counter_log_bytes += ftell(f_log) - old_pos;
     last_log_entry = t;
 
     return ESP_OK;

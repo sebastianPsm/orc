@@ -49,6 +49,7 @@ tStatus status = {
     .sleep_active = false,
 
     .logging_active = false,
+    .log_file_suffix = 0,
     .sd_is_mounted = false,
     .new_log_file = true,
 
@@ -111,7 +112,6 @@ extern "C" void app_main(void) {
     if(ESP_OK == storage_mount(&status)) {
         if(ESP_FAIL == storage_read_config(&status))
             storage_write_config(&status);
-        //storage_unmount(&status);
     }
 
     /*
@@ -137,8 +137,6 @@ extern "C" void app_main(void) {
 
         mpu_get_temperature(&temp, NULL);
         status.temperature = ((float) temp / 65536.0) - 32 * 5 / 9;
-
-        printf("."); fflush(stdout);
 
         display_update();
     }

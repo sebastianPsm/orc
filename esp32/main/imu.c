@@ -74,11 +74,6 @@ void mpu_interrupt_cb(void * data) {
         mpu_lp_motion_interrupt(500, 1, 5);
         status->sleep_cb();
     }
-
-    /*
-     * Try int disable
-     */
-    ESP_LOGI(tag, "interrupt %f", h.last_detected_motion_s);
 }
 
 void imu_init(tStatus * status) {
@@ -129,7 +124,7 @@ void imu_init(tStatus * status) {
         DMP_FEATURE_ANDROID_ORIENT | DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_CAL_GYRO |
         DMP_FEATURE_GYRO_CAL;
     dmp_enable_feature(dmp_features);
-    dmp_set_fifo_rate(20);
+    dmp_set_fifo_rate(status->imu_sampler_rate_hz);
     mpu_set_dmp_state(1);
 
     ESP_LOGI(tag, "done (i2c: %d, mpu: %d, dmp: %d)", h.isI2cInitialized, h.isMpuInitialized, h.isDmpInitialized);
